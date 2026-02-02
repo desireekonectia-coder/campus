@@ -12,26 +12,20 @@ def login():
     if request.method == "POST":
         usuario = request.form["user"]
         password = request.form["password"]
+        email = request.form["email"]
+        color = request.form["color"]
 
         print("Usuario ingresado:", usuario)
         print("Password:", password)
 
-        return f"Usuario {usuario} ha intentado iniciar sesion"
+        return render_template("user.html", usuario=usuario, email=email, color=color)
+        #return f"<p>Usuario {usuario} ha intentado iniciar sesion</p>"
 
 
     return render_template("login.html")
 
-@app.route("/user")
-def hello_user():
-    return "<p>Hello, Usuario</p>"
 
-@app.route("/logged")
-def logged_user():
-    return render_template("user_custom.html")
 
-@app.route("/horario")
-def horario():
-    return render_template("horario.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
