@@ -1,3 +1,9 @@
 .venv\Scripts\activate (activar .venv)
 
 pip install Flask (instalar flask)
+
+flask --app hello run (Ejecutar aplicación)
+
+ctrl + C (cerrar aplicación)
+
+cls (borrar terminal)
