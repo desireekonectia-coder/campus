@@ -2,20 +2,119 @@
 
 {% block content %}
 
-    <h2>Pagina de Login</h2>
-    <!-- <p>Estoy siendo inyectado desde el login.html</p> -->
+ <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login / Registro - Campus</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
 
-    <form method="POST" action="/login">
-        <label>Usuario:</label>
-        <input type="text" name="user"><br>
+        .container {
+            background-color: #fff;
+            padding: 40px 50px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 350px;
+            text-align: center;
+        }
 
-        <label>Password:</label>
-        <input type="password" name="password"><br>
+        h1 {
+            margin-bottom: 30px;
+            color: #333;
+        }
 
-        <label>Email:</label>
-        <input type="email"name="email"><br>
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
 
-        <button type="submit">Entrar</button>
-    </form>
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 8px;
+            background-color: #667eea;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #5a67d8;
+        }
+
+        .mensaje {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        label {
+            float: left;
+            margin-left: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Campus Login / Registro</h1>
+
+        {% if mensaje %}
+            <p class="mensaje">{{ mensaje }}</p>
+        {% endif %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label>Usuario:</label>
+                <input type="text" name="user" required>
+            </div>
+
+            <div class="form-group">
+                <label>Contraseña:</label>
+                <input type="password" name="password" required>
+            </div>
+
+            {% if mostrar_email %}
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" name="email" required>
+            </div>
+            {% endif %}
+
+            <button type="submit">
+                {% if mostrar_email %}
+                    Registrarse
+                {% else %}
+                    Login
+                {% endif %}
+            </button>
+        </form>
+    </div>
+</body>
+</html>
+
+
 
 {% endblock %}

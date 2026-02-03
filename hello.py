@@ -12,31 +12,49 @@ def conectarCampus():
 
 app = Flask(__name__)
 
-@app.route("/")
-def hello_world():
-    return "<p>Hello, World!</p>"
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
+@app.route("/", methods=["GET", "POST"])
+def login_registro():
+    mensaje = ""
+    mostrar_email = False  # Para decidir si mostramos campo email para registro
 
     if request.method == "POST":
         usuario = request.form["user"]
         password = request.form["password"]
-        email = request.form["email"]
-       
-        conn= conectarCampus()
-        cursor = conn.cursor()
-        cursor.execute("insert into users (username, password, user_mail) values (%s, %s, %s)", (usuario, password, email))
+        email = request.form.get("email", None)
 
-        conn.commit()      
+        conn = conectarCampus()
+        cursor = conn.cursor()
+
+        # Revisamos si el usuario ya existe
+        cursor.execute("SELECT * FROM users WHERE username=%s AND password=%s", (usuario, password))
+        user = cursor.fetchone()
+
+        if user:
+            # Usuario existe → logeo
+            cursor.close()
+            conn.close()
+            return render_template("user.html", usuario=usuario, email=user[3])
+        else:
+            # Usuario no existe → mostrar formulario de registro
+            mostrar_email = True
+            mensaje = "Usuario no existe. Complete su email para registrarse."
+
+            # Si ya llenó el email, lo registramos
+            if email:
+                cursor.execute(
+                    "INSERT INTO users (username, password, user_mail) VALUES (%s, %s, %s)",
+                    (usuario, password, email)
+                )
+                conn.commit()
+                cursor.close()
+                conn.close()
+                return render_template("user.html", usuario=usuario, email=email)
+
         cursor.close()
         conn.close()
 
-        return render_template("user.html", usuario=usuario, email=email)
-        #return f"<p>Usuario {usuario} ha intentado iniciar sesion</p>"
+    return render_template("login.html", mensaje=mensaje, mostrar_email=mostrar_email)
 
-
-    return render_template("login.html")
 
 
 
