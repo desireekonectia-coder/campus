@@ -1,4 +1,14 @@
 from flask import Flask, render_template, request
+import psycopg2
+
+def conectarCampus():
+    conexion = psycopg2.connect(
+        host="localhost",
+        database="campus",
+        user="postgres",
+        password="admin"
+    )
+    return conexion
 
 app = Flask(__name__)
 
@@ -13,12 +23,16 @@ def login():
         usuario = request.form["user"]
         password = request.form["password"]
         email = request.form["email"]
-        color = request.form["color"]
+       
+        conn= conectarCampus()
+        cursor = conn.cursor()
+        cursor.execute("insert into users (username, password, user_mail) values (%s, %s, %s)", (usuario, password, email))
 
-        print("Usuario ingresado:", usuario)
-        print("Password:", password)
+        conn.commit()      
+        cursor.close()
+        conn.close()
 
-        return render_template("user.html", usuario=usuario, email=email, color=color)
+        return render_template("user.html", usuario=usuario, email=email)
         #return f"<p>Usuario {usuario} ha intentado iniciar sesion</p>"
 
 
@@ -27,6 +41,5 @@ def login():
 
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
 
