@@ -23,13 +23,21 @@
             padding: 40px 50px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            width: 350px;
+            width: 360px;
             text-align: center;
+            position: relative;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
         }
 
         h1 {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             color: #333;
+            font-size: 22px;
         }
 
         input[type="text"], input[type="password"], input[type="email"] {
@@ -39,6 +47,7 @@
             border-radius: 8px;
             border: 1px solid #ccc;
             font-size: 14px;
+            box-sizing: border-box;
         }
 
         button {
@@ -74,11 +83,29 @@
         .form-group {
             margin-bottom: 15px;
             text-align: left;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Campo de email oculto inicialmente */
+        .email-field {
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            transition: opacity 0.5s ease, height 0.5s ease;
+        }
+
+        .email-field.show {
+            opacity: 1;
+            height: auto;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Logo -->
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo Campus" class="logo">
+
         <h1>Campus Login / Registro</h1>
 
         {% if mensaje %}
@@ -96,12 +123,10 @@
                 <input type="password" name="password" required>
             </div>
 
-            {% if mostrar_email %}
-            <div class="form-group">
+            <div class="form-group email-field {% if mostrar_email %}show{% endif %}">
                 <label>Email:</label>
-                <input type="email" name="email" required>
+                <input type="email" name="email" {% if mostrar_email %}required{% endif %}>
             </div>
-            {% endif %}
 
             <button type="submit">
                 {% if mostrar_email %}
@@ -114,6 +139,7 @@
     </div>
 </body>
 </html>
+
 
 
 
