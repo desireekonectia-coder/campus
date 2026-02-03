@@ -1,91 +1,132 @@
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(to right, #667eea, #764ba2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+/* 1. Ajuste Global y Fuente */
+body, html {
     margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-.container {
-    background-color: #fff;
-    padding: 40px 50px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    width: 360px;
-    text-align: center;
-    position: relative;
+/* 2. Fondo Animado con TUS colores (Azul y Cian) */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Cambiado a tus colores: Azul #0c0ceb y Cian #00d4ff */
+    background: linear-gradient(90deg, #0c0ceb, #00d4ff, #0c0ceb);
+    background-size: 200% 200%;
+    animation: gradientMove 8s ease infinite;
+    z-index: -1;
 }
 
-.logo {
-    width: 80px;
-    height: 80px;
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 3. Estilo para el Título "Campus Konectia" (Visible sobre el fondo azul) */
+.header-title {
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
     margin-bottom: 20px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+    z-index: 1;
+}
+
+/* 4. Contenedor del Formulario */
+.container {
+    width: 380px;
+    padding: 40px;
+    background: #fff;
+    border-radius: 25px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    text-align: center;
+    position: relative; /* Cambiado de absolute para fluir con el título */
+}
+
+/* 5. Logo y Texto */
+.logo {
+    width: 90px;
+    height: auto;
+    margin-bottom: 20px;
+    animation: dropIn 0.8s ease-out;
+}
+
+@keyframes dropIn {
+    0% { transform: translateY(-50px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
 }
 
 h1 {
     margin-bottom: 25px;
+    font-size: 24px;
     color: #333;
-    font-size: 22px;
 }
 
-input[type="text"], input[type="password"], input[type="email"] {
+/* 6. Inputs y Etiquetas Flotantes */
+.form-group {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.form-group input {
     width: 100%;
     padding: 12px;
-    margin: 10px 0;
-    border-radius: 8px;
+    border-radius: 10px;
     border: 1px solid #ccc;
     font-size: 14px;
+    outline: none;
     box-sizing: border-box;
 }
 
-button {
+.form-group label {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    color: #aaa;
+    font-size: 14px;
+    pointer-events: none;
+    transition: 0.3s ease all;
+}
+
+.form-group input:focus + label,
+.form-group input:not(:placeholder-shown) + label {
+    top: -10px;
+    left: 8px;
+    font-size: 12px;
+    color: #0c0ceb; /* Azul de tu marca */
+    background: #fff;
+    padding: 0 4px;
+}
+
+/* 7. Botón con TUS colores */
+.btn {
     width: 100%;
-    padding: 12px;
-    margin-top: 15px;
+    padding: 14px;
     border: none;
-    border-radius: 8px;
-    background-color: #667eea;
+    border-radius: 12px;
+    /* Cambiado para que coincida con el fondo azul/cian */
+    background: linear-gradient(45deg, #0c0ceb, #00d4ff);
     color: white;
     font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(12, 12, 235, 0.2);
 }
 
-button:hover {
-    background-color: #5a67d8;
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    filter: brightness(1.1);
 }
 
-.mensaje {
-    color: red;
-    font-size: 14px;
-    margin-bottom: 10px;
-}
 
-label {
-    float: left;
-    margin-left: 5px;
-    font-size: 14px;
-    color: #555;
-}
-
-.form-group {
-    margin-bottom: 15px;
-    text-align: left;
-    opacity: 1;
-    transition: opacity 0.5s ease;
-}
-
-/* Campo de email oculto inicialmente */
-.email-field {
-    opacity: 0;
-    height: 0;
-    overflow: hidden;
-    transition: opacity 0.5s ease, height 0.5s ease;
-}
-
-.email-field.show {
-    opacity: 1;
-    height: auto;
-}
