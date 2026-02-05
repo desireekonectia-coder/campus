@@ -1,59 +1,74 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
+from werkzeug.security import generate_password_hash, check_password_hash
 
+app = Flask(__name__)
+
+# Configuración de la conexión
 def conectarCampus():
-    conexion = psycopg2.connect(
+    return psycopg2.connect(
         host="localhost",
         database="campus",
         user="postgres",
         password="admin"
     )
-    return conexion
-
-app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
 def login_registro():
     mensaje = ""
-    mostrar_email = False  # Para decidir si mostramos campo email para registro
+    mostrar_email = False
 
     if request.method == "POST":
         usuario = request.form["user"]
-        password = request.form["password"]
-        email = request.form.get("email", None)
+        password_ingresada = request.form["password"]
+        email_ingresado = request.form.get("email")
 
         conn = conectarCampus()
         cursor = conn.cursor()
 
-        # Revisamos si el usuario ya existe
-        cursor.execute("SELECT * FROM users WHERE username=%s AND password=%s", (usuario, password))
-        user = cursor.fetchone()
+        # 1. Buscar si el usuario existe
+        cursor.execute("SELECT password, user_mail FROM users WHERE username=%s", (usuario,))
+        resultado = cursor.fetchone()
 
-        if user:
-            # Usuario existe → logeo
-            cursor.close()
-            conn.close()
-            return render_template("user.html", usuario=usuario, email=user[3])
-        else:
-            # Usuario no existe → mostrar formulario de registro
-            mostrar_email = True
-            mensaje = "Usuario no existe. Complete su email para registrarse."
-
-            # Si ya llenó el email, lo registramos
-            if email:
-                cursor.execute(
-                    "INSERT INTO users (username, password, user_mail) VALUES (%s, %s, %s)",
-                    (usuario, password, email)
-                )
-                conn.commit()
+        if resultado:
+            # --- CASO LOGIN ---
+            hash_guardado = resultado[0]
+            email_guardado = resultado[1]
+            
+            # Verificamos si la contraseña coincide con el hash
+            if check_password_hash(hash_guardado, password_ingresada):
                 cursor.close()
                 conn.close()
-                return render_template("user.html", usuario=usuario, email=email)
+                return render_template("user.html", usuario=usuario, email=email_guardado)
+            else:
+                mensaje = "Contraseña incorrecta. Intente de nuevo."
+        else:
+            # --- CASO REGISTRO ---
+            mostrar_email = True
+            if not email_ingresado:
+                mensaje = "El usuario no existe. Ingrese su email para registrarse."
+            else:
+                # Ciframos la contraseña antes de guardarla
+                pass_cifrada = generate_password_hash(password_ingresada)
+                try:
+                    cursor.execute(
+                        "INSERT INTO users (username, password, user_mail) VALUES (%s, %s, %s)",
+                        (usuario, pass_cifrada, email_ingresado)
+                    )
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
+                    return render_template("user.html", usuario=usuario, email=email_ingresado)
+                except Exception as e:
+                    mensaje = f"Error al registrar: {e}"
 
         cursor.close()
         conn.close()
 
     return render_template("login.html", mensaje=mensaje, mostrar_email=mostrar_email)
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 
 
