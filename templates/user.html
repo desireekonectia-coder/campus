@@ -1,11 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="background"></div>
 
-    <p>"Usuario {{usuario}} ha intentado iniciar sesion"</p>
-    <p>Tu correo es {{email}}</p>
-   
-
-
-
+<div class="card-container">
+    <h1 class="header-title">Campus Konectia</h1>
+    
+    <div class="user-card">
+        <div class="avatar">👤</div>
+        
+        <p class="status-msg">
+            "Usuario <strong>{{ usuario }}</strong> ha iniciado sesión"
+        </p>
+        
+        <div class="info-box">
+            <span>Tu correo es:</span>
+            <p class="email-text">{{ email }}</p>
+        </div>
+        
+        <a href="/" class="btn-back">Cerrar Sesión</a>
+    </div>
+</div>
 {% endblock %}

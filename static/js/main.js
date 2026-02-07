@@ -1,9 +1,19 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const emailField = document.querySelector(".email-field");
-    if(emailField.classList.contains("show")) {
-        emailField.style.opacity = 0;
-        setTimeout(() => {
-            emailField.style.opacity = 1;
-        }, 100);
+function togglePassword() {
+    const passwordInput = document.getElementById("password");
+    const icon = document.querySelector(".toggle-password");
+
+    if (!passwordInput || !icon) return;
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        icon.textContent = "🙈";
+    } else {
+        passwordInput.type = "password";
+        icon.textContent = "👁️";
     }
-});
+}
+
+
+
+
+
