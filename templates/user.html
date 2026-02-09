@@ -18,7 +18,7 @@
             <p class="email-text">{{ email }}</p>
         </div>
         
-        <a href="/" class="btn-back">Cerrar Sesión</a>
+        <a href="{{ url_for('logout') }}" class="btn-back">Cerrar Sesión</a>
     </div>
 </div>
 {% endblock %}
