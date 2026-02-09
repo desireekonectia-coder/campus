@@ -1,16 +1,21 @@
 from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
+import os
+
+#Cargar variables de entorno desde archivo .env
+load_dotenv()
 
 app = Flask(__name__)
 
 # Configuración de la conexión
 def conectarCampus():
     return psycopg2.connect(
-        host="localhost",
-        database="campus",
-        user="postgres",
-        password="admin"
+        host=os.getenv("DB_HOST"),
+        database=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD")
     )
 
 @app.route("/", methods=["GET", "POST"])
