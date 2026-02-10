@@ -181,12 +181,3 @@ Proyecto de formación desarrollado para propósitos educativos.
 
 ---
 
-## 💡 Próximos Pasos
-
-Para extender este proyecto puedes:
-
-- Agregar más funcionalidades al perfil de usuario
-- Implementar recuperación de contraseña por email
-- Crear panel de administración
-- Agregar validación de formularios en cliente y servidor
-- Implementar tests unitarios
