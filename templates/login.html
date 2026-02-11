@@ -21,7 +21,7 @@
         <div class="form-group password-group">
             <input type="password" name="password" id="password" required placeholder=" ">
             <label>Contraseña</label>
-            <span class="toggle-password" onclick="togglePassword()">👁️</span>
+            <span class="toggle-password" onclick="togglePassword()" style="position: absolute; right: 10px; top: 12px; cursor: pointer;">👁️</span>
         </div>
 
         {% if mostrar_email %}
@@ -36,4 +36,15 @@
         </button>
     </form>
 </div>
+
+<script>
+function togglePassword() {
+    var x = document.getElementById("password");
+    if (x.type === "password") {
+        x.type = "text";
+    } else {
+        x.type = "password";
+    }
+}
+</script>
 {% endblock %}
