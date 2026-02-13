@@ -72,7 +72,7 @@ def login_registro():
                     pass_cifrada = generate_password_hash(password_ingresada)
                     try:
                         cursor.execute(
-                            "INSERT INTO users (username, password, user_mail) VALUES (%s, %s, %s)",
+                            "INSERT INTO users (nombre, password, mail, rol) VALUES (%s, %s, %s, %s)",
                             (usuario, pass_cifrada, email_ingresado)
                         )
                         conn.commit()
