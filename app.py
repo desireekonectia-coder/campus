@@ -8,7 +8,8 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "clave_segura")
+# Usa una clave segura desde .env o la de respaldo
+app.secret_key = os.getenv("SECRET_KEY", "clave_segura_123")
 
 def conectarCampus():
     return psycopg2.connect(
@@ -42,13 +43,14 @@ def login_registro():
         conn = conectarCampus()
         cursor = conn.cursor()
 
-        # 1. Buscar si el usuario existe
-        cursor.execute("SELECT password, user_mail FROM users WHERE username=%s", (usuario,))
+        # 1. Buscamos al usuario usando la columna 'nombre' (según tu imagen)
+        cursor.execute("SELECT password, mail FROM users WHERE nombre=%s", (usuario,))
         resultado = cursor.fetchone()
 
         if resultado:
             # --- CASO LOGIN ---
             hash_guardado, email_guardado = resultado
+            # Comparamos la contraseña ingresada con el hash cifrado de la DB
             if check_password_hash(hash_guardado, password_ingresada):
                 session['usuario'] = usuario
                 session['email'] = email_guardado
@@ -63,17 +65,18 @@ def login_registro():
             if not email_ingresado:
                 mensaje = "El usuario no existe. Ingrese su email para registrarse."
             else:
-                # NUEVA VALIDACIÓN: ¿Existe ya este email en la DB?
-                cursor.execute("SELECT username FROM users WHERE user_mail=%s", (email_ingresado,))
+                # Verificamos si el email ya existe en la columna 'mail'
+                cursor.execute("SELECT nombre FROM users WHERE mail=%s", (email_ingresado,))
                 if cursor.fetchone():
                     mensaje = "Error: Este correo ya está registrado con otra cuenta."
                 else:
-                    # Cifrado de seguridad original
+                    # CIFRADO: Aquí se genera el hash para la base de datos
                     pass_cifrada = generate_password_hash(password_ingresada)
                     try:
+                        # Insertamos usando los nombres exactos: nombre, password, mail, rol
                         cursor.execute(
                             "INSERT INTO users (nombre, password, mail, rol) VALUES (%s, %s, %s, %s)",
-                            (usuario, pass_cifrada, email_ingresado)
+                            (usuario, pass_cifrada, email_ingresado, "usuario")
                         )
                         conn.commit()
                         session['usuario'] = usuario
