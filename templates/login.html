@@ -1,6 +1,61 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    /* Estilos específicos para arreglar el selector de Rol */
+    .form-group {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    /* Estilo para que el select combine con tus inputs redondeados */
+    .select-rol {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ccc;
+        border-radius: 25px; /* Ajusta esto según el radio de tus otros inputs */
+        background-color: white;
+        color: #757575;
+        font-size: 16px;
+        cursor: pointer;
+        outline: none;
+        appearance: none; /* Quita la flecha nativa */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+
+    /* Flecha personalizada para el select */
+    .select-wrapper {
+        position: relative;
+    }
+
+    .select-wrapper::after {
+        content: '▼';
+        font-size: 12px;
+        color: #666;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .select-rol:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+    }
+
+    /* Estilo para el label estático del rol (opcional) */
+    .label-rol {
+        display: block;
+        margin-left: 15px;
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: #666;
+        text-align: left;
+    }
+</style>
+
 <div class="background"></div>
 
 <div class="container">
@@ -9,7 +64,7 @@
     <h1>Campus Login / Registro</h1>
 
     {% if mensaje %}
-        <p class="mensaje">{{ mensaje }}</p>
+        <p class="mensaje" style="color: red; margin-bottom: 15px;">{{ mensaje }}</p>
     {% endif %}
 
     <form method="POST">
@@ -21,24 +76,25 @@
         <div class="form-group password-group">
             <input type="password" name="password" id="password" required placeholder=" ">
             <label>Contraseña</label>
-            <span class="toggle-password" onclick="togglePassword()" style="position: absolute; right: 10px; top: 12px; cursor: pointer;">👁️</span>
+            <span class="toggle-password" onclick="togglePassword()" style="position: absolute; right: 15px; top: 12px; cursor: pointer;">👁️</span>
         </div>
 
-        {# Campos extra para el REGISTRO #}
         {% if mostrar_email %}
-        <div class="form-group">
-            <input type="email" name="email" id="email" placeholder=" " required>
-            <label>Email para registro</label>
-        </div>
+            <div class="form-group">
+                <input type="email" name="email" id="email" placeholder=" " required>
+                <label>Email para registro</label>
+            </div>
 
-        <div class="form-group">
-            <label style="display: block; margin-bottom: 5px; color: #666;">Selecciona tu Rol:</label>
-            <select name="rol" id="rol" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">
-                <option value="" disabled selected>Elegir rol...</option>
-                <option value="admin">Administrador</option>
-                <option value="usuario">Usuario</option>
-            </select>
-        </div>
+            <div class="form-group">
+                <label class="label-rol">Selecciona tu Rol:</label>
+                <div class="select-wrapper">
+                    <select name="rol" id="rol" class="select-rol" required>
+                        <option value="" disabled selected hidden>Elegir...</option>
+                        <option value="admin">Administrador</option>
+                        <option value="usuario">Usuario</option>
+                    </select>
+                </div>
+            </div>
         {% endif %}
 
         <button type="submit" class="btn">
