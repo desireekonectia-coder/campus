@@ -8,7 +8,6 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-# Usa una clave segura desde .env o la de respaldo
 app.secret_key = os.getenv("SECRET_KEY", "clave_segura_123")
 
 def conectarCampus():
@@ -39,18 +38,18 @@ def login_registro():
         usuario = request.form["user"]
         password_ingresada = request.form["password"]
         email_ingresado = request.form.get("email")
+        rol_ingresado = request.form.get("rol") # <-- NUEVO: Recibe el rol
 
         conn = conectarCampus()
         cursor = conn.cursor()
 
-        # 1. Buscamos al usuario usando la columna 'nombre' (según tu imagen)
+        # 1. Buscar si el usuario existe
         cursor.execute("SELECT password, mail FROM users WHERE nombre=%s", (usuario,))
-        resultado = cursor.fetchone()
+        resultado = resultado = cursor.fetchone()
 
         if resultado:
             # --- CASO LOGIN ---
             hash_guardado, email_guardado = resultado
-            # Comparamos la contraseña ingresada con el hash cifrado de la DB
             if check_password_hash(hash_guardado, password_ingresada):
                 session['usuario'] = usuario
                 session['email'] = email_guardado
@@ -63,20 +62,18 @@ def login_registro():
             # --- CASO REGISTRO ---
             mostrar_email = True
             if not email_ingresado:
-                mensaje = "El usuario no existe. Ingrese su email para registrarse."
+                mensaje = "El usuario no existe. Ingrese sus datos para registrarse."
             else:
-                # Verificamos si el email ya existe en la columna 'mail'
                 cursor.execute("SELECT nombre FROM users WHERE mail=%s", (email_ingresado,))
                 if cursor.fetchone():
-                    mensaje = "Error: Este correo ya está registrado con otra cuenta."
+                    mensaje = "Error: Este correo ya está registrado."
                 else:
-                    # CIFRADO: Aquí se genera el hash para la base de datos
                     pass_cifrada = generate_password_hash(password_ingresada)
                     try:
-                        # Insertamos usando los nombres exactos: nombre, password, mail, rol
+                        # 2. INSERT corregido: Ahora incluye el rol que viene del formulario
                         cursor.execute(
                             "INSERT INTO users (nombre, password, mail, rol) VALUES (%s, %s, %s, %s)",
-                            (usuario, pass_cifrada, email_ingresado, "usuario")
+                            (usuario, pass_cifrada, email_ingresado, rol_ingresado)
                         )
                         conn.commit()
                         session['usuario'] = usuario
