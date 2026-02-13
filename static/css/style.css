@@ -1,24 +1,21 @@
-/* 1. Ajuste Global y Fuente */
+/* 1. Ajuste Global - Cambiamos overflow a auto por si acaso */
 body, html {
     margin: 0;
     padding: 0;
     height: 100%;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow: hidden;
+    overflow-y: auto; /* Permite scroll solo si es estrictamente necesario */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    background-color: #f0f2f5;
 }
 
-/* 2. Fondo Animado con TUS colores (Azul y Cian) */
+/* 2. Fondo Animado */
 .background {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* Cambiado a tus colores: Azul #0c0ceb y Cian #00d4ff */
+    top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(90deg, #0c0ceb, #00d4ff, #0c0ceb);
     background-size: 200% 200%;
     animation: gradientMove 8s ease infinite;
@@ -31,66 +28,59 @@ body, html {
     100% { background-position: 0% 50%; }
 }
 
-/* 3. Estilo para el Título "Campus Konectia" (Visible sobre el fondo azul) */
-.header-title {
-    color: white;
-    font-size: 32px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-    z-index: 1;
-}
-
-/* 4. Contenedor del Formulario */
-.container {
-    width: 380px;
-    padding: 40px;
+/* 3. Contenedor Maestro - Reducimos paddings y anchos */
+.container, .user-card {
+    width: 90%;
+    max-width: 360px; /* Un poco más estrecho para ganar altura */
+    padding: 20px 30px; /* REDUCIDO de 40px a 20px arriba/abajo */
     background: #fff;
-    border-radius: 25px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     text-align: center;
-    position: relative; /* Cambiado de absolute para fluir con el título */
+    margin: 10px; /* Espacio mínimo con el borde de la pantalla */
 }
 
-/* 5. Logo y Texto */
+/* 4. Logo - Más pequeño */
 .logo {
-    width: 90px;
+    width: 70px; /* REDUCIDO de 90px a 70px */
     height: auto;
-    margin-bottom: 20px;
-    animation: dropIn 0.8s ease-out;
-}
-
-@keyframes dropIn {
-    0% { transform: translateY(-50px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
+    margin-bottom: 10px;
 }
 
 h1 {
-    margin-bottom: 25px;
-    font-size: 24px;
+    margin-bottom: 15px; /* REDUCIDO de 25px */
+    font-size: 20px; /* Un poco más pequeño */
     color: #333;
 }
 
-/* 6. Inputs y Etiquetas Flotantes */
+/* 5. Inputs y Form Groups - Espacios compactos */
 .form-group {
     position: relative;
-    margin-bottom: 25px;
+    margin-bottom: 18px; /* REDUCIDO de 25px a 18px */
 }
 
-.form-group input {
+.form-group input, .select-rol {
     width: 100%;
-    padding: 12px;
-    border-radius: 10px;
+    padding: 10px; /* REDUCIDO */
+    border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 14px;
-    outline: none;
     box-sizing: border-box;
+    outline: none;
 }
 
+/* Selector de Rol Ajustado */
+.select-rol {
+    background-color: white;
+    cursor: pointer;
+    color: #666;
+}
+
+/* Etiquetas flotantes */
 .form-group label {
     position: absolute;
     left: 12px;
-    top: 12px;
+    top: 10px;
     color: #aaa;
     font-size: 14px;
     pointer-events: none;
@@ -101,212 +91,34 @@ h1 {
 .form-group input:not(:placeholder-shown) + label {
     top: -10px;
     left: 8px;
-    font-size: 12px;
-    color: #0c0ceb; /* Azul de tu marca */
+    font-size: 11px;
+    color: #0c0ceb;
     background: #fff;
     padding: 0 4px;
 }
 
-/* 7. Botón con TUS colores */
-.btn {
+/* 6. Botón - Estilizado pero compacto */
+.btn, .btn-back {
     width: 100%;
-    padding: 14px;
+    padding: 12px;
     border: none;
-    border-radius: 12px;
-    /* Cambiado para que coincida con el fondo azul/cian */
+    border-radius: 10px;
     background: linear-gradient(45deg, #0c0ceb, #00d4ff);
     color: white;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(12, 12, 235, 0.2);
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    filter: brightness(1.1);
-}
-
-/* Centra todo en la pantalla */
-.card-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f2f5;
-    font-family: 'Segoe UI', sans-serif;
-}
-
-/* Tarjeta blanca */
-.user-card {
-    background: white;
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-    text-align: center;
-    width: 350px;
-}
-
-.user-card h1 {
-    color: #1a73e8;
-    margin-bottom: 20px;
-}
-
-.avatar {
-    font-size: 50px;
-    margin-bottom: 10px;
-}
-
-/* Caja de información */
-.info-box {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 10px;
-    margin: 20px 0;
-    border: 1px solid #e1e4e8;
-}
-
-.email-text {
-    color: #1a73e8;
-    font-weight: bold;
-    margin-top: 5px;
-}
-
-/* Botón */
-.btn-back {
-    display: inline-block;
     text-decoration: none;
-    color: white;
-    background: #5f6368;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: 0.3s;
-}
-
-.btn-back:hover {
-    background: #202124;
-}
-
-/* 3. Contenedor Maestro Centrado */
-.card-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    width: 100%;
-}
-
-/* 4. Título Superior */
-.header-title {
-    color: white;
-    font-size: 32px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-}
-
-/* 5. Tarjeta Blanca Estilo Login */
-.user-card {
-    width: 380px;
-    padding: 40px;
-    background: #fff;
-    border-radius: 25px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    text-align: center;
-    animation: dropIn 0.8s ease-out;
-}
-
-@keyframes dropIn {
-    0% { transform: translateY(-50px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
-}
-
-/* 6. Elementos internos */
-.avatar {
-    font-size: 50px;
-    margin-bottom: 10px;
-}
-
-.status-msg {
-    color: #333;
-    font-size: 18px;
-    margin-bottom: 20px;
-}
-
-.info-box {
-    background: #f0f7ff;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    border: 1px solid #cce3ff;
-}
-
-.email-text {
-    color: #0c0ceb;
-    font-weight: bold;
-    margin: 5px 0 0 0;
-}
-
-/* 7. Botón con el mismo estilo del Login */
-.btn-back {
     display: block;
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(45deg, #0c0ceb, #00d4ff);
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    box-sizing: border-box; /* Importante para el ancho */
-}
-
-.btn-back:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.1);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-}
-
-.password-group {
-    position: relative;
+    box-sizing: border-box;
 }
 
 /* Icono del ojo */
 .toggle-password {
     position: absolute;
-    right: 14px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    font-size: 18px;
     color: #999;
-    user-select: none;
-    transition: color 0.3s ease;
-}
-
-.toggle-password:hover {
-    color: #667eea;
-}
-/* Estilo para que el select combine con tus inputs */
-.select-rol {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 25px; /* Para que sea redondo como tus otros campos */
-    background-color: white;
-    color: #666;
-    font-size: 16px;
-    cursor: pointer;
-    outline: none;
-    appearance: none; /* Quita la flecha por defecto en algunos navegadores */
-}
-
-.select-rol:focus {
-    border-color: #007bff; /* Color de énfasis al hacer clic */
 }
