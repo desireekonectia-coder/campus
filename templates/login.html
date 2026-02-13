@@ -4,39 +4,38 @@
 <div class="background"></div>
 
 <div class="container">
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo Campus" class="logo">
+
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
 
     <h1>Login / Registro</h1>
 
     {% if mensaje %}
-        <p class="mensaje">{{ mensaje }}</p>
+    <p class="mensaje" style="color:red; font-size:12px;">{{ mensaje }}</p>
     {% endif %}
 
     <form method="POST">
         <div class="form-group">
-            <input type="text" name="user" id="user" placeholder=" " required>
-            <label>Usuario</label>
+            <input type="text" name="user" placeholder="Usuario" required>
         </div>
 
-        <div class="form-group password-group">
-            <input type="password" name="password" id="password" required placeholder=" ">
-            <label>Contraseña</label>
-            <span class="toggle-icon" onclick="togglePassword()">👁️</span>
+        <div class="form-group">
+            <input type="password" name="password" id="password" placeholder="Contraseña" required>
+            <span class="toggle-password" onclick="togglePassword()">👁️</span>
         </div>
 
         {% if mostrar_email %}
-            <div class="form-group">
-                <input type="email" name="email" id="email" placeholder=" " required>
-                <label>Email</label>
-            </div>
+        <div class="form-group">
+            <input type="password" id="password" placeholder="Contraseña">
+            <span class="toggle-password" onclick="togglePassword()">👁️</span>
+        </div>
 
-            <div class="form-group">
-                <select name="rol" id="rol" class="select-rol" required>
-                    <option value="" disabled selected hidden>Elegir Rol...</option>
-                    <option value="admin">Administrador</option>
-                    <option value="usuario">Usuario</option>
-                </select>
-            </div>
+        <div class="form-group">
+            <select name="rol" class="select-rol" required>
+                <option value="" disabled selected hidden>Selecciona tu Rol</option>
+                <option value="admin">Administrador</option>
+                <option value="usuario">Usuario</option>
+            </select>
+        </div>
         {% endif %}
 
         <button type="submit" class="btn">
@@ -46,9 +45,9 @@
 </div>
 
 <script>
-function togglePassword() {
-    var x = document.getElementById("password");
-    x.type = (x.type === "password") ? "text" : "password";
-}
+    function togglePassword() {
+        var x = document.getElementById("password");
+        x.type = (x.type === "password") ? "text" : "password";
+    }
 </script>
 {% endblock %}
