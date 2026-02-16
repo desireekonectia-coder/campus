@@ -70,9 +70,12 @@ def login_registro():
                 else:
                     pass_cifrada = generate_password_hash(password_ingresada)
                     try:
-                        # 2. INSERT corregido: Ahora incluye el rol que viene del formulario
+                        # INSERT actualizado con las 2 nuevas columnas
                         cursor.execute(
-                            "INSERT INTO users (nombre, password, mail, rol) VALUES (%s, %s, %s, %s)",
+                            """
+                            INSERT INTO users (nombre, password, mail, rol, creado_en, actualizado_en) 
+                            VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                            """,
                             (usuario, pass_cifrada, email_ingresado, rol_ingresado)
                         )
                         conn.commit()
