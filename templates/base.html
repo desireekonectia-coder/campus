@@ -14,10 +14,13 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-    {% block content %}{% endblock %}
+    {% block content %}{% endblock %}<br><br><br>
+
+    <iframe width="600" height="450" style="border:0" load="lazy" allowfullscreen
+src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJ78ddXa5LSQ0RNSKO1YA6Go8&key=AIzaSyCGpvePlM4ZYNIFuk9eQfnIg0IA80qhzpI"></iframe>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
+    
 </body>
 
 </html>
