@@ -13,14 +13,6 @@
 
     {% block content %}{% endblock %}
 
-<div class="zoom-container">
-        <h3>Clase en Vivo</h3>
-        <p>Haz clic abajo para entrar a la sesión:</p>
-        <a href="https://zoom.us/j/123456789" target="_blank" class="btn-zoom">
-            Entrar a Zoom
-        </a>
-    </div>
-
     <iframe width="360" height="250" style="border:0; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);" 
             loading="lazy" allowfullscreen
 
@@ -28,5 +20,36 @@ src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2892.4278456012!2d-3.
     </iframe>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+ <h3>¿Sabías qué? - Curiosidad Animal 🐾</h3>
+<button onclick="buscarPerrito()">¡Ver un dato curioso!</button>
+<div id="resultado" style="margin-top:15px; font-style: italic;">Haz clic para cargar...</div>
+
+<script>
+  async function buscarPerrito() {
+    const display = document.getElementById('resultado');
+    display.innerText = "Buscando y traduciendo...";
+
+    try {
+      // 1. Pedimos el dato en inglés
+      const respuesta = await fetch('https://dogapi.dog/api/v2/facts');
+      const datos = await respuesta.json();
+      const textoIngles = datos.data[0].attributes.body;
+
+      // 2. Lo enviamos al traductor gratuito
+      const resTraduccion = await fetch(`https://api.mymemory.translated.net/get?q=${textoIngles}&langpair=en|es`);
+      const datosTraduccion = await resTraduccion.json();
+      const textoEspanol = datosTraduccion.responseData.translatedText;
+
+      // 3. Lo mostramos en tu web
+      display.innerText = textoEspanol;
+
+    } catch (error) {
+      display.innerText = "Error al conectar. Inténtalo de nuevo.";
+      console.error(error);
+    }
+  }
+</script>
+
 </body>
 </html>
