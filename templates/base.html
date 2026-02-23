@@ -13,43 +13,36 @@
 
     {% block content %}{% endblock %}
 
-    <iframe width="360" height="250" style="border:0; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);" 
-            loading="lazy" allowfullscreen
+    {# SOLO SE MUESTRA SI NO ES LA PÁGINA DE REGISTRO #}
+    {% if request.endpoint != 'registrar_usuario' %}
+        
+        <iframe width="360" height="250" style="border:0; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-top: 20px;" 
+                loading="lazy" allowfullscreen src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2892.4278456012!2d-3.812349!3d43.4688262!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd494bae5d5dc7ef%3A0x8f1a3a80d58e2235!2sKonectia!5e0!3m2!1ses!2ses!4v1700000000000!5m2!1ses!2ses">
+        </iframe>
 
-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2892.4278456012!2d-3.812349!3d43.4688262!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd494bae5d5dc7ef%3A0x8f1a3a80d58e2235!2sKonectia!5e0!3m2!1ses!2ses!4v1700000000000!5m2!1ses!2ses"></iframe>
-    </iframe>
+        <h3>¿Sabías qué? - Curiosidad Animal 🐾</h3>
+        <button onclick="buscarPerrito()">¡Ver un dato curioso!</button>
+        <div id="resultado" style="margin-top:15px; font-style: italic;">Haz clic para cargar...</div>
+
+        <script>
+          async function buscarPerrito() {
+            const display = document.getElementById('resultado');
+            display.innerText = "Buscando...";
+            try {
+              const respuesta = await fetch('https://dogapi.dog/api/v2/facts');
+              const datos = await respuesta.json();
+              const textoIngles = datos.data[0].attributes.body;
+              const resTraduccion = await fetch(`https://api.mymemory.translated.net/get?q=${textoIngles}&langpair=en|es`);
+              const datosTraduccion = await resTraduccion.json();
+              display.innerText = datosTraduccion.responseData.translatedText;
+            } catch (error) {
+              display.innerText = "Error al conectar.";
+            }
+          }
+        </script>
+        
+    {% endif %}
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
- <h3>¿Sabías qué? - Curiosidad Animal 🐾</h3>
-<button onclick="buscarPerrito()">¡Ver un dato curioso!</button>
-<div id="resultado" style="margin-top:15px; font-style: italic;">Haz clic para cargar...</div>
-
-<script>
-  async function buscarPerrito() {
-    const display = document.getElementById('resultado');
-    display.innerText = "Buscando y traduciendo...";
-
-    try {
-      // 1. Pedimos el dato en inglés
-      const respuesta = await fetch('https://dogapi.dog/api/v2/facts');
-      const datos = await respuesta.json();
-      const textoIngles = datos.data[0].attributes.body;
-
-      // 2. Lo enviamos al traductor gratuito
-      const resTraduccion = await fetch(`https://api.mymemory.translated.net/get?q=${textoIngles}&langpair=en|es`);
-      const datosTraduccion = await resTraduccion.json();
-      const textoEspanol = datosTraduccion.responseData.translatedText;
-
-      // 3. Lo mostramos en tu web
-      display.innerText = textoEspanol;
-
-    } catch (error) {
-      display.innerText = "Error al conectar. Inténtalo de nuevo.";
-      console.error(error);
-    }
-  }
-</script>
-
 </body>
 </html>

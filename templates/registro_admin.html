@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Nuevo Usuario 👤</h2>
+    <p style="font-size: 0.85rem;">Panel de Alta Administrativa</p>
+    <hr style="border: 0; height: 1px; background: #eee; margin: 15px 0;">
+
+    {% if mensaje %}
+        <div style="padding: 8px; margin-bottom: 10px; border-radius: 5px; background-color: #d4edda; color: #155724; font-size: 0.8rem;">
+            {{ mensaje }}
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        <input type="text" name="nuevo_user" placeholder="Nombre completo" class="input-field" required>
+        <input type="email" name="nuevo_email" placeholder="Email" class="input-field" required>
+        <input type="password" name="nuevo_password" placeholder="Contraseña" class="input-field" required>
+        
+        <select name="nuevo_rol" class="input-field">
+            <option value="alumno">Alumno</option>
+            <option value="profesor">Profesor</option>
+            <option value="padre">Padre/Madre</option>
+            <option value="administrador">Administrador</option>
+        </select>
+
+        <button type="submit" class="btn-success">Confirmar Registro ✅</button>
+    </form>
+
+    <div style="margin-top: 15px;">
+        <a href="{{ url_for('perfil') }}" style="color: white; text-decoration: none; font-size: 0.8rem;">
+            ← Volver
+        </a>
+    </div>
+</div>
+{% endblock %}
