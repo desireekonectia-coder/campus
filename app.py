@@ -38,7 +38,7 @@ def login_registro():
         usuario = request.form["user"]
         password_ingresada = request.form["password"]
         email_ingresado = request.form.get("email")
-        rol_ingresado = request.form.get("rol") # <-- NUEVO: Recibe el rol
+        rol_ingresado = "administrador" if request.form.get("rol") == "admin" else request.form.get("rol")
 
         conn = conectarCampus()
         cursor = conn.cursor()
@@ -73,7 +73,7 @@ def login_registro():
                         # INSERT actualizado con las 2 nuevas columnas
                         cursor.execute(
                             """
-                            INSERT INTO users (nombre, password, mail, rol, creado_en, actualizado_en) 
+                            INSERT INTO users (nombre, password, mail, rol_usuario, creado_en, actualizado_en) 
                             VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                             """,
                             (usuario, pass_cifrada, email_ingresado, rol_ingresado)
