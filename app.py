@@ -104,7 +104,7 @@ def logout():
 
 @app.route("/app-admin")
 def perfil_admin():
-    return render_template(url_for("admin.html"))
+    return render_template("admin.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
