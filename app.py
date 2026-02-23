@@ -102,6 +102,10 @@ def logout():
     session.clear()
     return redirect(url_for('login_registro'))
 
+@app.route("/app-admin")
+def perfil_admin():
+    return render_template(url_for("admin.html"))
+
 if __name__ == "__main__":
     app.run(debug=True)
 
