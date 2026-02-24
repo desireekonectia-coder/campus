@@ -95,8 +95,9 @@ body {
     color: #555;
 }
 
+/* Este estilo se aplicará a TODOS los botones con la clase btn-panel */
 .btn-panel {
-    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    background: #0c0ceb; /* El azul fuerte que usas en el registro */
     color: white;
     padding: 14px;
     border-radius: 50px;
@@ -104,12 +105,17 @@ body {
     width: 100%;
     border: none;
     cursor: pointer;
-    box-shadow: 0 5px 15px rgba(110, 142, 251, 0.4);
-    transition: transform 0.2s;
+    box-shadow: 0 5px 15px rgba(12, 12, 235, 0.4);
+    transition: transform 0.2s, background 0.3s;
+    text-decoration: none; /* Por si el botón es un enlace <a> */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn-panel:hover {
     transform: scale(1.02);
+    background: #0000cc; /* Un azul un poco más oscuro al pasar el ratón */
 }
 
 /* 5. SECCIÓN INFERIOR (TEXTOS Y MAPA) */
@@ -158,3 +164,150 @@ iframe {
     border: none;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3); /* Sombra para que destaque */
   }
+
+ /* --- ESTILOS PARA USER.HTML (PERFIL) --- */
+
+.perfil-container {
+    width: 90%;
+    max-width: 600px;
+    margin-top: 30px; /* Espacio desde el título superior */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.admin-top-bar {
+    display: flex;
+    gap: 20px; /* Separa los botones entre sí */
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 40px; /* ESTA ES LA CLAVE: Separa los botones de la tarjeta */
+}
+
+.user-card {
+    background: white;
+    padding: 35px;
+    border-radius: 25px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    text-align: left;
+    width: 100%; /* Para que ocupe el ancho del contenedor */
+    box-sizing: border-box;
+}
+
+/* Estilo para los botones de la barra superior */
+.admin-top-bar .btn-panel {
+    padding: 12px 25px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    min-width: 140px;
+    text-align: center;
+}
+
+/* --- ESTILOS PARA TABLAS EN TARJETAS --- */
+
+.gestion-container {
+    width: 95%;
+    max-width: 900px;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 40px; /* Espacio entre la tabla de usuarios y la de asignaturas */
+}
+
+/* Tarjeta blanca que envuelve cada sección */
+.tabla-card {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    overflow-x: auto; /* Para que en móviles no se rompa la tabla */
+}
+
+.tabla-card h3 {
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+/* Estilo de la tabla interna */
+.tabla-estilizada {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.tabla-estilizada th {
+    background-color: #f8f9fa;
+    color: #555;
+    padding: 12px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.tabla-estilizada td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+    vertical-align: middle;
+}
+
+/* Estilo para los botones de borrar/quitar */
+.btn-borrar {
+    color: #d9534f;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-borrar:hover {
+    color: #c9302c;
+    text-decoration: underline;
+}
+
+/* Contenedor para agrupar las tarjetas de registro */
+.registro-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    width: 90%;
+    max-width: 500px; /* Estrecho para que se vea como un formulario real */
+    margin-bottom: 50px;
+}
+
+/* Reutilizamos el estilo de tarjeta para los formularios */
+.form-card {
+    background: white;
+    padding: 30px;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.form-card h2 {
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+/* Estilo para los inputs dentro de las tarjetas */
+.form-card .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.form-card input, .form-card select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-sizing: border-box; /* Evita que se salgan del borde */
+    font-size: 1rem;
+}

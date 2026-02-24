@@ -1,12 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="registro-wrapper">
+<div class="background"></div>
 
-    <div class="form-container">
-        <h2 style="margin-bottom: 5px;">Nuevo Usuario 👤</h2>
-        <p style="font-size: 0.9rem; color: #666;">Panel de Alta Administrativa</p>
-        <hr style="border: 0; height: 1px; background: #eee; margin: 15px 0;">
+
+<div class="perfil-container">
+    
+    <div class="user-card" style="margin-bottom: 30px;">
+        <h2 style="color: black; margin-top: 0;">Nuevo Usuario</h2>
+        <p style="color: #666; font-size: 0.9rem;">Panel de Alta Administrativa</p>
+        <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
 
         {% if mensaje %}
             <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
@@ -15,38 +18,43 @@
         {% endif %}
 
         <form method="POST">
-            <div class="grid-form">
-                <input type="text" name="nuevo_user" placeholder="Nombre completo" required>
-                <input type="email" name="nuevo_email" placeholder="Email" required>
-                <input type="password" name="nuevo_password" placeholder="Contraseña" required>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <input type="text" name="nuevo_user" placeholder="Nombre completo" class="input-field" style="flex: 1; min-width: 200px;" required>
+                <input type="email" name="nuevo_email" placeholder="Email" class="input-field" style="flex: 1; min-width: 200px;" required>
+                <input type="password" name="nuevo_password" placeholder="Contraseña" class="input-field" style="flex: 1; min-width: 200px;" required>
                 
-                <select name="nuevo_rol">
+                <select name="nuevo_rol" class="input-field" style="flex: 1; min-width: 150px;">
                     <option value="alumno">Alumno</option>
                     <option value="profesor">Profesor</option>
                     <option value="padre">Padre/Madre</option>
                     <option value="administrador">Administrador</option>
                 </select>
             </div>
-            <button type="submit" class="btn-confirmar">Confirmar Registro ✅</button>
-        </form>
-    </div>
-
-    <div class="form-container" style="padding: 40px; border-radius: 30px;">
-        <h2 style="font-size: 1.8rem; margin-bottom: 25px;">Registrar Nueva Asignatura 📚</h2>
-        <form action="{{ url_for('registrar_asignatura') }}" method="POST" class="inline-form">
-            <input type="text" name="nombre_asig" placeholder="Nombre de la asignatura" required 
-                   style="border: 1px solid #999; padding: 10px;">
-            <button type="submit" class="btn-add" 
-                    style="background: #f0f0f0; border: 1px solid #999; padding: 10px;">
-                + Añadir Asignatura
+            <button type="submit" class="btn-panel" style="margin-top: 20px; width: auto; padding: 12px 30px;">
+                Confirmar Registro ✅
             </button>
         </form>
     </div>
 
-    <div style="margin-top: 20px;">
-        <a href="{{ url_for('perfil') }}" style="color: white; text-decoration: none; font-weight: bold;">
-            ← Volver
+    <div class="user-card" style="margin-bottom: 30px;">
+        <h2 style="color: black; margin-top: 0;">Registrar Nueva Asignatura 📚</h2>
+        <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
+        
+        <form action="{{ url_for('registrar_asignatura') }}" method="POST">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="text" name="nombre_asig" placeholder="Nombre de la asignatura" class="input-field" style="flex: 2;" required>
+                <button type="submit" class="btn-panel" style="flex: 1; white-space: nowrap;">
+                    + Añadir Asignatura
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div style="text-align: center;">
+        <a href="{{ url_for('perfil') }}" class="btn-panel" style="background: #4b30e6; text-decoration: none; display: inline-block; width: auto; padding: 12px 40px;">
+            ← Volver al Perfil
         </a>
     </div>
+
 </div>
 {% endblock %}

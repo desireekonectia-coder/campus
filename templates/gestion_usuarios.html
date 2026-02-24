@@ -1,13 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="ocultar-mapa">
-    <div class="gestion-container">
-        <h2 style="color: #000; text-align: center;">Usuarios Registrados 👥</h2>
-        
-        <table class="tabla-usuarios">
+<div class="background"></div>
+
+<h1 class="campus-title-top">Panel de Control</h1>
+
+<div class="gestion-container">
+    
+    <div class="tabla-card">
+        <h3>Usuarios Registrados 👥</h3>
+        <table class="tabla-estilizada">
             <thead>
-                <tr style="background: #f0f0f0;">
+                <tr>
                     <th>Nombre</th>
                     <th>Email</th>
                     <th>Rol</th>
@@ -29,36 +33,38 @@
                     </td>
                 </tr>
                 {% endfor %}
-                
-                {% if not lista_usuarios %}
-                <tr>
-                    <td colspan="4" style="text-align: center; color: #666;">No hay usuarios.</td>
-                </tr>
-                {% endif %}
             </tbody>
         </table>
-<h2 style="color: #000; text-align: center; margin-top: 40px;">Gestión de Asignaturas 📖</h2>
-<table class="tabla-usuarios">
-    <thead>
-        <tr>
-            <th>Asignatura</th>
-            <th>Acción</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for a in lista_asignaturas %}
-        <tr>
-            <td>{{ a.nombre_asig }}</td>
-            <td>
-                <a href="{{ url_for('eliminar_asignatura', id=a.id_asig) }}" class="btn-borrar">🗑️ Quitar</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-        <div style="margin-top: 20px; text-align: center;">
-            <a href="{{ url_for('perfil') }}" class="btn-panel" style="background: rgb(75, 48, 230);">← Volver</a>
-        </div>
+    </div>
+
+    <div class="tabla-card">
+        <h3>Gestión de Asignaturas 📖</h3>
+        <table class="tabla-estilizada">
+            <thead>
+                <tr>
+                    <th>Asignatura</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in lista_asignaturas %}
+                <tr>
+                    <td>{{ a.nombre_asig }}</td>
+                    <td>
+                        <a href="{{ url_for('eliminar_asignatura', id=a.id_asig) }}" class="btn-borrar">
+                            🗑️ Quitar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="text-align: center;">
+        <a href="{{ url_for('perfil') }}" class="btn-panel" style="background: #4b30e6; text-decoration: none; display: inline-block; width: auto; padding: 12px 40px;">
+            ← Volver al Perfil
+        </a>
     </div>
 </div>
 {% endblock %}
