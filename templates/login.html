@@ -3,45 +3,35 @@
 {% block content %}
 <div class="background"></div>
 
-<div class="container">
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
+<div class="container login-box">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo-main">
     
-    <h1>{% if mostrar_email %} Registro {% else %} Login {% endif %}</h1>
+    <h2>{% if mostrar_email %} Registro {% else %} Login {% endif %}</h2>
 
     {% if mensaje %}
         <p style="color:red; font-size:12px; margin-bottom: 10px;">{{ mensaje }}</p>
     {% endif %}
 
-    <form method="POST">
+    <form method="POST" class="form-login">
         <div class="form-group">
-            <input type="text" name="user" placeholder="Usuario" required>
+            <input type="text" name="username" placeholder="Usuario" class="input-field" required>
         </div>
 
         <div class="form-group">
-            <input type="password" name="password" id="password" placeholder="Contraseña" required>
+            <input type="password" name="password" id="password" placeholder="Contraseña" class="input-field" required>
             <span class="toggle-password" onclick="togglePassword()">👁️</span>
         </div>
 
-        {% if mostrar_email %}
-            <div class="form-group">
-                <input type="email" name="email" placeholder="Email para registro" required>
-            </div>
-
-            <div class="form-group">
-                <select name="rol" class="select-rol" required>
-                    <option value="" disabled selected hidden>Selecciona tu Rol</option>
-                    <option value="administrador">Administrador</option>
-                    <option value="profesor">Profesor</option>
-                    <option value="alumno">Alumno</option>
-                    <option value="padre">Padre/Madre</option>
-                </select>
-            </div>
-        {% endif %}
-
-        <button type="submit" class="btn">
+        <button type="submit" class="btn-panel">
             {% if mostrar_email %} Registrarse {% else %} Entrar {% endif %}
         </button>
     </form>
+</div>
+
+<div class="footer-text">
+    <div class="map-container">
+        </div>
+
 </div>
 
 <script>

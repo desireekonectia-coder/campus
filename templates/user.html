@@ -3,37 +3,26 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-<div class="background">
-    {% if session['rol'] == 'administrador' %}
-    <div style="text-align: center;">
-        <a href="{{ url_for('registrar_usuario') }}" class="btn-panel">
-            Panel de Registro (Solo Admin)
-        </a>
-    </div>
-    {% endif %}
+<div class="perfil-layout">
+    
+    <div class="col-datos">
+        {% if session['rol'] == 'administrador' %}
+        <div class="admin-top-bar">
+            <a href="{{ url_for('registrar_usuario') }}" class="btn-panel">➕ Registro</a>
+            <a href="{{ url_for('gestion_usuarios') }}" class="btn-panel btn-gestion">👥 Gestión</a>
+        </div>
+        {% endif %}
 
+<div class="perfil-grid">
     <div class="user-card">
         <div class="avatar">👤</div>
-        
-        <p class="status-msg">
-            Usuario <strong>{{ usuario }}</strong> ha iniciado sesión
-        </p>
-
-        <div class="info-box">
-            <span>Tu correo es:</span>
-            <p class="email-text">{{ email }}</p>
-        </div>
-
-        <div class="info-box">
-            <span>Tu rol es:</span><br>
-            {% if session['rol'] == 'administrador' %}
-                <span class="badge-admin">🛡️ Administrador</span>
-            {% else %}
-                <p class="rol-text">{{ session['rol'] }}</p>
-            {% endif %}
-        </div>
-        
+        <h2 style="color: black;">Bienvenida, {{ usuario }}</h2>
+        <p><strong>Correo:</strong> {{ email }}</p>
+        <p><strong>Rol:</strong> {{ rol }}</p>
         <a href="{{ url_for('logout') }}" class="btn-back">Cerrar Sesión</a>
     </div>
+    
+    <div class="extras-column">
+        </div>
 </div>
 {% endblock %}

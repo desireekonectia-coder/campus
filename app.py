@@ -46,21 +46,25 @@ def login_registro():
     
     mensaje = ""
     if request.method == "POST":
-        usuario = request.form["user"]
+        # Capturamos los datos del formulario (deben coincidir con el name="" del HTML)
+        usuario_ingresado = request.form["username"]
         password_ingresada = request.form["password"]
 
         conn = conectarCampus()
         cursor = conn.cursor()
 
-        # Buscamos el usuario y obtenemos su ROL
-        cursor.execute("SELECT password, mail, rol FROM users WHERE nombre=%s", (usuario,))
+        # 1. Buscamos por la columna 'nombre' que es la que usas en tu tabla
+        cursor.execute("SELECT id_user, nombre, password, mail, rol FROM users WHERE nombre=%s", (usuario_ingresado,))
         resultado = cursor.fetchone()
 
         if resultado:
-            hash_guardado, email_guardado, rol_guardado = resultado
+            # Desempaquetamos los 5 valores que pedimos en el SELECT
+            id_user, nombre_db, hash_guardado, email_guardado, rol_guardado = resultado
+            
+            # 2. Verificamos la contraseña cifrada
             if check_password_hash(hash_guardado, password_ingresada):
-                # Guardamos datos clave en la sesión
-                session['usuario'] = usuario
+                # Guardamos datos en la sesión
+                session['usuario'] = nombre_db
                 session['email'] = email_guardado
                 session['rol'] = rol_guardado
                 
@@ -70,7 +74,7 @@ def login_registro():
             else:
                 mensaje = "Contraseña incorrecta."
         else:
-            mensaje = "El usuario no existe. Solicite acceso al administrador."
+            mensaje = "El usuario no existe."
 
         cursor.close()
         conn.close()
@@ -124,6 +128,75 @@ def perfil():
 def logout():
     session.clear()
     return redirect(url_for('login_registro'))
+
+
+# --- RUTA PARA VER LA LISTA ---
+@app.route('/gestion_usuarios')
+@login_requerido
+@admin_requerido
+def gestion_usuarios():
+    conn = conectarCampus()
+    cursor = conn.cursor()
+    
+    # 1. CONSULTA DE USUARIOS
+    cursor.execute("SELECT id_user, nombre, mail, rol FROM users")
+    cols_users = [desc[0] for desc in cursor.description]
+    usuarios = [dict(zip(cols_users, row)) for row in cursor.fetchall()]
+    
+    # 2. CONSULTA DE ASIGNATURAS (Añade esto)
+    cursor.execute("SELECT id_asig, nombre_asig FROM asignaturas")
+    cols_asig = [desc[0] for desc in cursor.description]
+    asignaturas = [dict(zip(cols_asig, row)) for row in cursor.fetchall()]
+    
+    cursor.close()
+    conn.close()
+    
+    # Enviamos AMBAS listas al HTML
+    return render_template('gestion_usuarios.html', 
+                           lista_usuarios=usuarios, 
+                           lista_asignaturas=asignaturas)
+
+@app.route('/eliminar_usuario/<int:id>')
+@login_requerido
+@admin_requerido
+def eliminar_usuario(id):
+    conn = conectarCampus() 
+    cursor = conn.cursor()
+    # Aquí también usamos 'id_user'
+    cursor.execute("DELETE FROM users WHERE id_user = %s", (id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('gestion_usuarios'))
+
+# RUTA PARA GUARDAR
+@app.route('/registrar_asignatura', methods=['POST'])
+def registrar_asignatura():
+    nombre = request.form.get('nombre_asig')
+    print(f"DEBUG: Intentando registrar asignatura: {nombre}") # Esto saldrá en tu terminal
+    
+    if nombre:
+        try:
+            conn = conectarCampus()
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO asignaturas (nombre_asig) VALUES (%s)", (nombre,))
+            conn.commit() # ¡Muy importante para guardar los cambios!
+            cursor.close()
+            conn.close()
+            print("DEBUG: Guardado exitoso")
+        except Exception as e:
+            print(f"DEBUG: Error al insertar: {e}")
+            
+    return redirect(url_for('registrar_usuario'))
+
+# RUTA PARA BORRAR (Usa el mismo estilo que con usuarios)
+@app.route('/eliminar_asignatura/<int:id>')
+def eliminar_asignatura(id):
+    conn = conectarCampus()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM asignaturas WHERE id_asig = %s", (id,))
+    conn.commit()
+    return redirect(url_for('gestion_usuarios'))
 
 if __name__ == "__main__":
     app.run(debug=True)

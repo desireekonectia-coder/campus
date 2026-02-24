@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="ocultar-mapa">
+    <div class="gestion-container">
+        <h2 style="color: #000; text-align: center;">Usuarios Registrados 👥</h2>
+        
+        <table class="tabla-usuarios">
+            <thead>
+                <tr style="background: #f0f0f0;">
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in lista_usuarios %}
+                <tr>
+                    <td>{{ u.nombre }}</td>
+                    <td>{{ u.mail }}</td>
+                    <td>{{ u.rol }}</td>
+                    <td>
+                        <a href="{{ url_for('eliminar_usuario', id=u.id_user) }}" 
+                           class="btn-borrar"
+                           onclick="return confirm('¿Eliminar a {{ u.nombre }}?')">
+                           🗑️ Borrar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                
+                {% if not lista_usuarios %}
+                <tr>
+                    <td colspan="4" style="text-align: center; color: #666;">No hay usuarios.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+<h2 style="color: #000; text-align: center; margin-top: 40px;">Gestión de Asignaturas 📖</h2>
+<table class="tabla-usuarios">
+    <thead>
+        <tr>
+            <th>Asignatura</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in lista_asignaturas %}
+        <tr>
+            <td>{{ a.nombre_asig }}</td>
+            <td>
+                <a href="{{ url_for('eliminar_asignatura', id=a.id_asig) }}" class="btn-borrar">🗑️ Quitar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="{{ url_for('perfil') }}" class="btn-panel" style="background: rgb(75, 48, 230);">← Volver</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
