@@ -3,19 +3,25 @@
 {% block content %}
 <div class="background"></div>
 
-
 <div class="perfil-container">
-    
-    <div class="user-card" style="margin-bottom: 30px;">
-        <h2 style="color: black; margin-top: 0;">Nuevo Usuario</h2>
-        <p style="color: #666; font-size: 0.9rem;">Panel de Alta Administrativa</p>
-        <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
 
-        {% if mensaje %}
-            <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
-                {{ mensaje }}
+    <div class="user-card" style="margin-bottom: 30px;">
+        <h2 style="color: black; margin-top: 0;">Nueva Asignatura 📚</h2>
+        <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
+        
+        <form action="{{ url_for('registrar_asignatura') }}" method="POST">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="text" name="nombre_asig" placeholder="Nombre de la asignatura" class="input-field" style="flex: 2;" required>
+                <button type="submit" class="btn-panel" style="flex: 1; white-space: nowrap;">
+                    + Añadir
+                </button>
             </div>
-        {% endif %}
+        </form>
+    </div>
+
+    <div class="user-card" style="margin-bottom: 30px;">
+        <h2 style="color: black; margin-top: 0;">Nuevo Usuario 👤</h2>
+        <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
 
         <form method="POST">
             <div style="display: flex; flex-wrap: wrap; gap: 10px;">
@@ -25,28 +31,12 @@
                 
                 <select name="nuevo_rol" class="input-field" style="flex: 1; min-width: 150px;">
                     <option value="alumno">Alumno</option>
-                    <option value="profesor">Profesor</option>
-                    <option value="padre">Padre/Madre</option>
                     <option value="administrador">Administrador</option>
                 </select>
             </div>
             <button type="submit" class="btn-panel" style="margin-top: 20px; width: auto; padding: 12px 30px;">
                 Confirmar Registro ✅
             </button>
-        </form>
-    </div>
-
-    <div class="user-card" style="margin-bottom: 30px;">
-        <h2 style="color: black; margin-top: 0;">Registrar Nueva Asignatura 📚</h2>
-        <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
-        
-        <form action="{{ url_for('registrar_asignatura') }}" method="POST">
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="text" name="nombre_asig" placeholder="Nombre de la asignatura" class="input-field" style="flex: 2;" required>
-                <button type="submit" class="btn-panel" style="flex: 1; white-space: nowrap;">
-                    + Añadir Asignatura
-                </button>
-            </div>
         </form>
     </div>
 

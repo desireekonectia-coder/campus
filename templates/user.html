@@ -3,7 +3,6 @@
 {% block content %}
 <div class="background"></div>
 
-
 <div class="perfil-container">
     
     {# Los botones ahora están en su propia barra con espacio debajo #}
@@ -25,4 +24,36 @@
     </div>
 
 </div>
+
+<section class="horario-container">
+    <h3>📅 Mi Horario y Asignaturas</h3>
+    
+    {% if horarios %}
+        <table class="tabla-horarios">
+            <thead>
+                <tr>
+                    <th>Asignatura</th>
+                    <th>Día</th>
+                    <th>Inicio</th>
+                    <th>Fin</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for h in horarios %}
+                <tr>
+                    <td><strong>{{ h.nombre_asig }}</strong></td>
+                    <td>{{ h.dia_semana }}</td>
+                    <td>{{ h.hora_inicio.strftime('%H:%M') }}</td>
+                    <td>{{ h.hora_fin.strftime('%H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="no-horarios">
+            <p>Aún no tienes asignaturas o horarios asignados. Contacta con el administrador.</p>
+        </div>
+    {% endif %}
+</section>
+
 {% endblock %}

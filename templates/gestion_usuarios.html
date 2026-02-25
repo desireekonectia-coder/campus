@@ -5,8 +5,8 @@
 
 <h1 class="campus-title-top">Panel de Control</h1>
 
-<div class="gestion-container">
-    
+<div class="perfil-container">
+
     <div class="tabla-card">
         <h3>Usuarios Registrados 👥</h3>
         <table class="tabla-estilizada">
@@ -25,10 +25,9 @@
                     <td>{{ u.mail }}</td>
                     <td>{{ u.rol }}</td>
                     <td>
-                        <a href="{{ url_for('eliminar_usuario', id=u.id_user) }}" 
-                           class="btn-borrar"
-                           onclick="return confirm('¿Eliminar a {{ u.nombre }}?')">
-                           🗑️ Borrar
+                        <a href="{{ url_for('eliminar_usuario', id=u.id_user) }}" class="btn-borrar"
+                            onclick="return confirm('¿Eliminar a {{ u.nombre }}?')">
+                            🗑️ Borrar
                         </a>
                     </td>
                 </tr>
@@ -38,7 +37,40 @@
     </div>
 
     <div class="tabla-card">
-        <h3>Gestión de Asignaturas 📖</h3>
+        <h3>Alumnos y sus Clases Asignadas 📅</h3>
+        <table class="tabla-estilizada">
+            <thead>
+                <tr>
+                    <th>Alumno</th>
+                    <th>Asignatura</th>
+                    <th>Día</th>
+                    <th>Horario</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for h in lista_horarios %}
+                <tr>
+                    <td><strong>{{ h.nombre_alumno }}</strong></td>
+                    <td>{{ h.nombre_asig }}</td>
+                    <td>{{ h.dia_semana }}</td>
+                    <td>{{ h.hora_inicio }} - {{ h.hora_fin }}</td>
+                    <td>
+                        <a href="{{ url_for('eliminar_horario', id=h.id_horario) }}" class="btn-borrar">
+                            🗑️ Quitar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not lista_horarios %}
+                <tr><td colspan="5" style="text-align: center; padding: 20px;">No hay alumnos asignados a clases.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="tabla-card">
+        <h3>Lista de Asignaturas 📖</h3>
         <table class="tabla-estilizada">
             <thead>
                 <tr>
@@ -52,7 +84,7 @@
                     <td>{{ a.nombre_asig }}</td>
                     <td>
                         <a href="{{ url_for('eliminar_asignatura', id=a.id_asig) }}" class="btn-borrar">
-                            🗑️ Quitar
+                            🗑️ Eliminar
                         </a>
                     </td>
                 </tr>
@@ -61,10 +93,48 @@
         </table>
     </div>
 
-    <div style="text-align: center;">
-        <a href="{{ url_for('perfil') }}" class="btn-panel" style="background: #4b30e6; text-decoration: none; display: inline-block; width: auto; padding: 12px 40px;">
+    <div style="text-align: center; margin-top: 10px;">
+        <a href="{{ url_for('perfil') }}" class="btn-panel"
+            style="background: #4b30e6; text-decoration: none; display: inline-block; width: auto; padding: 12px 40px;">
             ← Volver al Perfil
         </a>
     </div>
+</div>
+
+<div class="tabla-card">
+    <h3>Asignar Nueva Clase ➕</h3>
+    <form action="{{ url_for('asignar_horario') }}" method="POST" class="formulario-admin">
+        
+        <label>Usuario:</label>
+        <select name="id_user" required>
+            {% for u in lista_usuarios %}
+                <option value="{{ u.id_user }}">{{ u.nombre }} ({{ u.rol }})</option>
+            {% endfor %}
+        </select>
+
+        <label>Asignatura:</label>
+        <select name="id_asig" required>
+            {% for a in lista_asignaturas %}
+                <option value="{{ a.id_asig }}">{{ a.nombre_asig }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Día:</label>
+        <select name="dia_semana">
+            <option value="Lunes">Lunes</option>
+            <option value="Martes">Martes</option>
+            <option value="Miércoles">Miércoles</option>
+            <option value="Jueves">Jueves</option>
+            <option value="Viernes">Viernes</option>
+        </select>
+
+        <label>Hora Inicio:</label>
+        <input type="time" name="hora_inicio" required>
+
+        <label>Hora Fin:</label>
+        <input type="time" name="hora_fin" required>
+
+        <button type="submit" class="btn-panel">Guardar Asignación</button>
+    </form>
 </div>
 {% endblock %}

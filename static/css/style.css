@@ -311,3 +311,99 @@ iframe {
     box-sizing: border-box; /* Evita que se salgan del borde */
     font-size: 1rem;
 }
+
+/* Contenedor principal de gestión */
+.perfil-container {
+    width: 90%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+}
+
+/* Tarjeta Blanca Profesional */
+.user-card, .tabla-card {
+    background: white;
+    padding: 30px;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+/* Tablas estilizadas */
+.tabla-estilizada {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.tabla-estilizada th {
+    background: #f8f9fa;
+    padding: 12px;
+    color: #555;
+    border-bottom: 2px solid #eee;
+}
+
+.tabla-estilizada td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+
+/* Botón unificado */
+.btn-panel {
+    background: #0c0ceb; /* Azul de tu registro */
+    color: white;
+    padding: 12px 25px;
+    border-radius: 50px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    justify-content: center;
+    transition: 0.3s;
+}
+
+.btn-panel:hover { transform: scale(1.05); background: #0000cc; }
+
+/* Estilos para la tabla de horarios del alumno */
+.tabla-horarios {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tabla-horarios th {
+    background-color: #6506ea;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.tabla-horarios td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+
+.tabla-horarios tr:hover {
+    background-color: #f5f9ff;
+}
+
+.no-horarios {
+    padding: 20px;
+    background-color: #fff3cd;
+    color: #856404;
+    border-radius: 5px;
+    border: 1px solid #ffeeba;
+}
