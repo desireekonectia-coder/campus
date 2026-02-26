@@ -54,7 +54,7 @@ cd campus
 python -m venv .venv
 
 # Activar entorno virtual
-.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate
 ```
 
 ### 3. Instalar Dependencias
