@@ -2,7 +2,12 @@
 
 ## 📚 Descripción
 
-**Campus** es un proyecto de formación que demuestra el desarrollo de una aplicación web completa con autenticación de usuarios y gestión de perfiles. El proyecto integra tecnologías modernas de frontend y backend para crear una experiencia de aprendizaje práctica.
+**Campus**  es una plataforma educativa integral que permite la gestión de la vida académica en tiempo real. Este proyecto demuestra el desarrollo de una aplicación web completa, desde la autenticación segura hasta la visualización dinámica de datos escolares para alumnos, padres y profesores.
+🌟 Funcionalidades Principales
+•	Gestión de Usuarios: Autenticación segura con hash de contraseñas.
+•	Panel de Control Personalizado: Vista de horarios, faltas y notas según el rol.
+•	Calendario Dinámico: Visualización de clases semanales y eventos especiales.
+•	Sistema de Eventos (Nuevo): Los profesores pueden publicar exámenes o avisos que aparecen automáticamente en el calendario de sus alumnos.
 
 ---
 
@@ -42,15 +47,14 @@ Antes de comenzar, asegúrate de tener instalado:
 
 ### 1. Clonar el Repositorio
 
-```bash
+bash
 git clone <URL_DEL_REPOSITORIO>
 cd campus
-```
+
 
 ### 2. Crear un Entorno Virtual
 
-```powershell
-# Crear entorno virtual
+# Crear entorno virtual en powershell
 python -m venv .venv
 
 # Activar entorno virtual
@@ -59,9 +63,8 @@ python -m venv .venv
 
 ### 3. Instalar Dependencias
 
-```bash
 pip install -r requirements.txt
-```
+
 
 ### 4. Configurar Base de Datos PostgreSQL
 
@@ -80,34 +83,28 @@ CREATE DATABASE campus;
 \c campus
 ```
 
-#### Paso 4.2: Crear la Tabla de Usuarios
+#### Paso 4.2: Crear las Tablas 
 
-```sql
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    user_mail VARCHAR(100) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
 
-#### Paso 4.3: Verificar la Tabla
+CREATE TABLE users (id_user SERIAL PRIMARY KEY, nombre VARCHAR(100) NOT NULL, email VARCHAR(100) UNIQUE NOT NULL, password VARCHAR(255) NOT NULL, rol VARCHAR(20) NOT NULL, email_tutor VARCHAR(100));
 
-```sql
--- Ver las tablas creadas
-\dt
+CREATE TABLE asignaturas (id_asig SERIAL PRIMARY KEY, nombre_asig TEXT NOT NULL);
 
--- Ver la estructura de la tabla users
-\d users
-```
+CREATE TABLE horarios (id_horario SERIAL PRIMARY KEY, id_asig INTEGER REFERENCES asignaturas(id_asig) ON DELETE CASCADE, dia_semanaTEXT NOT NULL, hora_inicio TIME NOT NULL, hora_fin TIME NOT NULL);
+
+CREATE TABLE faltas (id_falta SERIAL PRIMARY KEY, id_user INTEGER REFERENCES users(id_user) ON DELETE CASCADE, id_asig INTEGER REFERENCES asignaturas(id_asig) ON DELETE CASCADE, fecha DATE DEFAULT CURRENT_DATE, justificada BOOLEAN DEFAULT FALSE);
+
+CREATE TABLE nоtas (id_nota SERIAL PRIMARY KEY, id_user INTEGER NOT NULL, id_asig INTEGER NOT NULL, calificacion DECIMAL(4,2) CHECK (calificacion >= 0 AND calificacion <= 10), trimestre VARCHAR(20), fecha_registro DATE DEFAULT CURRENT_DATE, CONSTRAINT fk_usuario FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE, CONSTRAINT fk_asignatura FOREIGN KEY (id_asig) REFERENCES asignaturas(id_asig) ON DELETE CASCADE);
+
+CREATE TABLE eventos (id_evento SERIAL PRIMARY KEY, id_asig INTEGER REFERENCES asignaturas(id_asig), titulo VARCHAR(100), fecha DATE, id_profesor INTEGER REFERENCES users(id_user));
+
 
 ### 5. Configurar Variables de Entorno
 
 Crea un archivo `.env` en la raíz del proyecto:
 
-```plaintext
-# Configuración de Base de Datos
+
+# Variables de entorno .env
 DB_HOST=localhost
 DB_NAME=campus
 DB_USER=postgres
@@ -116,17 +113,17 @@ DB_PASSWORD=tu_contraseña_aqui
 # Configuración de Flask
 SECRET_KEY=tu_clave_secreta_muy_segura_cambiar_en_produccion
 FLASK_ENV=development
-```
+
 
 > ⚠️ **Importante:** Reemplaza los valores con tus credenciales reales. Nunca subas el archivo `.env` a control de versiones.
 
 ### 6. Ejecutar la Aplicación
 
-```bash
-python hello.py
-```
 
-La aplicación estará disponible en: `http://localhost:5000`
+flask --app app run
+
+
+La aplicación estará disponible en: http://127.0.0.1:5000
 
 ---
 
@@ -134,7 +131,7 @@ La aplicación estará disponible en: `http://localhost:5000`
 
 ```
 campus/
-├── hello.py                 # Aplicación principal Flask
+├── app.py                 # Aplicación principal Flask
 ├── requirements.txt         # Dependencias del proyecto
 ├── README.md               # Este archivo
 ├── LICENSE.md              # Licencia del proyecto
@@ -150,7 +147,7 @@ campus/
     ├── base.html           # Plantilla base
     ├── login.html          # Página de login/registro
     └── user.html           # Página de perfil del usuario
-```
+
 
 ---
 
