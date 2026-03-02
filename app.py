@@ -47,7 +47,7 @@ def login_registro():
 
         conn = conectarCampus()
         cursor = conn.cursor()
-        # Volvemos a usar 'rol' porque 'rol_usuario' no existe según el error
+       
         cursor.execute("SELECT id_user, nombre, password, mail, rol FROM users WHERE nombre=%s", (usuario_ingresado,))
         resultado = resultado = cursor.fetchone()
 
@@ -75,29 +75,54 @@ def login_registro():
 @login_requerido
 def perfil():
     id_usuario = session.get('id_user')
+    rol = session.get('rol')
+    email = session.get('email')
+    
     conn = conectarCampus()
     cursor = conn.cursor()
 
-    # Consultamos solo los horarios y asignaturas de este alumno
+    # 1. Consultar Horarios
     cursor.execute("""
         SELECT a.nombre_asig, h.dia_semana, h.hora_inicio, h.hora_fin 
-        FROM horarios h 
-        JOIN asignaturas a ON h.id_asig = a.id_asig 
-        WHERE h.id_user = %s
-        ORDER BY h.dia_semana, h.hora_inicio
+        FROM horarios h JOIN asignaturas a ON h.id_asig = a.id_asig 
+        WHERE h.id_user = %s ORDER BY h.dia_semana, h.hora_inicio
     """, (id_usuario,))
-    
-    # Convertimos los resultados en una lista de diccionarios
     mis_horarios = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+
+    # 2. Consultar Faltas
+    cursor.execute("""
+        SELECT a.nombre_asig, f.id_falta FROM faltas f 
+        JOIN asignaturas a ON f.id_asig = a.id_asig WHERE f.id_user = %s
+    """, (id_usuario,))
+    mis_faltas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+
+    # 3. CONSULTAR NOTAS (Lógica para Alumno y Padre)
+    if rol == 'padre':
+        # El padre ve las notas de los alumnos que tengan su correo como 'email_tutor'
+        cursor.execute("""
+            SELECT u.nombre as alumno, a.nombre_asig, n.calificacion, n.trimestre 
+            FROM notas n JOIN users u ON n.id_user = u.id_user
+            JOIN asignaturas a ON n.id_asig = a.id_asig WHERE u.email_tutor = %s
+        """, (email,))
+    else:
+        # El alumno ve sus propias notas
+        cursor.execute("""
+            SELECT a.nombre_asig, n.calificacion, n.trimestre 
+            FROM notas n JOIN asignaturas a ON n.id_asig = a.id_asig WHERE n.id_user = %s
+        """, (id_usuario,))
+    
+    mis_notas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
 
     cursor.close()
     conn.close()
 
     return render_template("user.html", 
-                           usuario=session.get('usuario'), 
-                           email=session.get('email'), 
-                           rol=session.get('rol'),
-                           horarios=mis_horarios)
+                           usuario=session.get('usuario'),
+                           email=session.get('email'),
+                           rol=rol, 
+                           horarios=mis_horarios, 
+                           faltas=mis_faltas, 
+                           notas=mis_notas)
 
 @app.route("/registro", methods=["GET", "POST"])
 @login_requerido
@@ -105,28 +130,35 @@ def perfil():
 def registrar_usuario():
     mensaje = ""
     if request.method == "POST":
-        nuevo_user = request.form["nuevo_user"]
-        nuevo_pass = request.form["nuevo_password"]
-        nuevo_email = request.form["nuevo_email"]
-        nuevo_rol = request.form["nuevo_rol"]
+        # Recogemos los datos del formulario
+        nombre = request.form.get("nuevo_user")
+        password = request.form.get("nuevo_password")
+        email = request.form.get("nuevo_email")
+        rol = request.form.get("nuevo_rol")
+        f_nac = request.form.get("fecha_nacimiento")
+        e_tutor = request.form.get("email_tutor") or None
 
-        conn = conectarCampus()
-        cursor = conn.cursor()
-
+        conn = None
+        cursor = None
         try:
-            pass_cifrada = generate_password_hash(nuevo_pass)
-            # Insertamos en 'rol_usuario'
-            cursor.execute(
-                "INSERT INTO users (nombre, password, mail, rol_usuario) VALUES (%s, %s, %s, %s)",
-                (nuevo_user, pass_cifrada, nuevo_email, nuevo_rol)
-            )
+            conn = conectarCampus()
+            cursor = conn.cursor()
+            pass_cifrada = generate_password_hash(password)
+            
+            # SQL Correcto para insertar
+            sql = """INSERT INTO users 
+                     (nombre, password, mail, rol, fecha_alta, email_tutor, fecha_nacimiento) 
+                     VALUES (%s, %s, %s, %s, CURRENT_DATE, %s, %s)"""
+            
+            cursor.execute(sql, (nombre, pass_cifrada, email, rol, e_tutor, f_nac))
             conn.commit()
-            mensaje = f"Éxito: Usuario '{nuevo_user}' registrado."
+            mensaje = "✅ ¡Usuario registrado con éxito!"
         except Exception as e:
-            mensaje = f"Error: {e}"
+            mensaje = f"❌ Error SQL: {e}"
+            print(f"DEBUG ERROR: {e}")
         finally:
-            cursor.close()
-            conn.close()
+            if cursor: cursor.close()
+            if conn: conn.close()
 
     return render_template("registro_admin.html", mensaje=mensaje)
 
@@ -137,7 +169,7 @@ def gestion_usuarios():
     conn = conectarCampus()
     cursor = conn.cursor()
     
-    # 1. Usuarios (Usando 'rol')
+    # 1. Usuarios
     cursor.execute("SELECT id_user, nombre, mail, rol FROM users")
     usuarios = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
     
@@ -146,22 +178,37 @@ def gestion_usuarios():
     asignaturas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
     
     # 3. Horarios 
-    # ¡RECUERDA! Debes haber ejecutado: ALTER TABLE horarios ADD COLUMN id_user INTEGER;
     cursor.execute("""
         SELECT h.id_horario, u.nombre as nombre_alumno, a.nombre_asig, h.dia_semana, h.hora_inicio, h.hora_fin 
-        FROM horarios h 
-        JOIN asignaturas a ON h.id_asig = a.id_asig
-        JOIN users u ON h.id_user = u.id_user
-        ORDER BY h.dia_semana, h.hora_inicio
+        FROM horarios h JOIN asignaturas a ON h.id_asig = a.id_asig
+        JOIN users u ON h.id_user = u.id_user ORDER BY h.dia_semana, h.hora_inicio
     """)
     horarios = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+
+    # 4. NOTAS (Para el Administrador)
+    cursor.execute("""
+        SELECT n.id_nota, u.nombre as alumno, a.nombre_asig, n.calificacion, n.trimestre 
+        FROM notas n JOIN users u ON n.id_user = u.id_user
+        JOIN asignaturas a ON n.id_asig = a.id_asig
+    """)
+    notas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+
+    # 2. NUEVO: Ver todas las notas para poder gestionarlas
+    cursor.execute("""
+        SELECT n.id_nota, u.nombre as alumno, a.nombre_asig, n.calificacion, n.trimestre 
+        FROM notas n
+        JOIN users u ON n.id_user = u.id_user
+        JOIN asignaturas a ON n.id_asig = a.id_asig
+    """)
+    notas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
     
     cursor.close()
     conn.close()
     return render_template('gestion_usuarios.html', 
                            lista_usuarios=usuarios, 
                            lista_asignaturas=asignaturas, 
-                           lista_horarios=horarios)
+                           lista_horarios=horarios,
+                           lista_notas=notas)
 
 @app.route('/asignar_horario', methods=['POST'])
 @login_requerido
@@ -197,6 +244,46 @@ def registrar_asignatura():
         conn.close()
     return redirect(url_for('gestion_usuarios'))
 
+@app.route('/registrar_nota', methods=['POST'])
+@login_requerido
+@admin_requerido
+def registrar_nota():
+    id_user = request.form.get('id_user')
+    id_asig = request.form.get('id_asig')
+    nota = request.form.get('calificacion')
+    trimestre = request.form.get('trimestre')
+
+    conn = conectarCampus()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            INSERT INTO notas (id_user, id_asig, calificacion, trimestre) 
+            VALUES (%s, %s, %s, %s)
+        """, (id_user, id_asig, nota, trimestre))
+        conn.commit()
+    except Exception as e:
+        print(f"Error al poner nota: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('gestion_usuarios'))
+
+@app.route('/registrar_falta', methods=['POST'])
+@login_requerido
+@admin_requerido
+def registrar_falta():
+    id_user = request.form.get('id_user')
+    id_asig = request.form.get('id_asig')
+    fecha = request.form.get('fecha_falta')
+    hora = request.form.get('hora_falta')
+    conn = conectarCampus()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO faltas (id_user, id_asig, fecha, hora) VALUES (%s, %s, %s, %s)", (id_user, id_asig, fecha, hora))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('gestion_usuarios'))
+
 @app.route('/eliminar_usuario/<int:id>')
 @login_requerido
 @admin_requerido
@@ -223,6 +310,18 @@ def eliminar_asignatura(id):
     finally:
         cursor.close()
         conn.close()
+    return redirect(url_for('gestion_usuarios'))
+
+@app.route('/eliminar_nota/<int:id>')
+@login_requerido
+@admin_requerido
+def eliminar_nota(id):
+    conn = conectarCampus()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM notas WHERE id_nota = %s", (id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
     return redirect(url_for('gestion_usuarios'))
 
 @app.route('/eliminar_horario/<int:id>')

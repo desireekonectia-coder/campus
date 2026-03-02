@@ -56,4 +56,42 @@
     {% endif %}
 </section>
 
+<div class="tabla-card">
+    <h3>Notas Académicas 🎓</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Asignatura</th>
+                <th>Trimestre</th>
+                <th>Nota</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for n in notas %}
+            <tr>
+                <td>{{ n.nombre_asig }}</td>
+                <td>{{ n.trimestre }}</td>
+                <td><strong>{{ n.calificacion }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<section class="faltas-container">
+    <h3>⚠️ Mis Faltas de Asistencia</h3>
+    {% if faltas %}
+        <ul>
+            {% for f in faltas %}
+                <li>
+                    {{ f.fecha }}: <strong>{{ f.nombre_asig }}</strong> 
+                    {% if f.justificada %}(Justificada ✅){% else %}(Sin justificar ❌){% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No tienes faltas registradas. ¡Buen trabajo!</p>
+    {% endif %}
+</section>
+
 {% endblock %}

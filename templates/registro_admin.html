@@ -8,10 +8,11 @@
     <div class="user-card" style="margin-bottom: 30px;">
         <h2 style="color: black; margin-top: 0;">Nueva Asignatura 📚</h2>
         <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
-        
+
         <form action="{{ url_for('registrar_asignatura') }}" method="POST">
             <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="text" name="nombre_asig" placeholder="Nombre de la asignatura" class="input-field" style="flex: 2;" required>
+                <input type="text" name="nombre_asig" placeholder="Nombre de la asignatura" class="input-field"
+                    style="flex: 2;" required>
                 <button type="submit" class="btn-panel" style="flex: 1; white-space: nowrap;">
                     + Añadir
                 </button>
@@ -22,29 +23,70 @@
     <div class="user-card" style="margin-bottom: 30px;">
         <h2 style="color: black; margin-top: 0;">Nuevo Usuario 👤</h2>
         <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
-
         <form method="POST">
+
             <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                <input type="text" name="nuevo_user" placeholder="Nombre completo" class="input-field" style="flex: 1; min-width: 200px;" required>
-                <input type="email" name="nuevo_email" placeholder="Email" class="input-field" style="flex: 1; min-width: 200px;" required>
-                <input type="password" name="nuevo_password" placeholder="Contraseña" class="input-field" style="flex: 1; min-width: 200px;" required>
-                
-                <select name="nuevo_rol" class="input-field" style="flex: 1; min-width: 150px;">
-                    <option value="alumno">Alumno</option>
+                <input type="text" name="nuevo_user" placeholder="Nombre completo" class="input-field" required>
+                <input type="email" name="nuevo_email" placeholder="Email" class="input-field" required>
+                <input type="password" name="nuevo_password" placeholder="Contraseña" class="input-field" required>
+
+                <div class="form-group" style="margin-top: 5px;">
+                    <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
+                    <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control" required>
+                </div>
+
+                <div class="form-group" id="grupo-tutor" style="margin-top: 5px;">
+                    <label for="email_tutor">Correo Padres:</label>
+                    <input type="email" name="email_tutor" id="email_tutor" class="form-control"
+                        placeholder="Email Tutor (Opcional)">
+                </div>
+
+                <select name="nuevo_rol" class="input-field">
                     <option value="administrador">Administrador</option>
+                    <option value="alumno">Alumno</option>
+                    <option value="padres">Padres</option>
+                    <option value="profesor">Profesor</option>
                 </select>
             </div>
-            <button type="submit" class="btn-panel" style="margin-top: 20px; width: auto; padding: 12px 30px;">
+            <button type="submit" class="btn-panel" style="margin-top: 20px;">
                 Confirmar Registro ✅
             </button>
         </form>
     </div>
 
     <div style="text-align: center;">
-        <a href="{{ url_for('perfil') }}" class="btn-panel" style="background: #4b30e6; text-decoration: none; display: inline-block; width: auto; padding: 12px 40px;">
+        <a href="{{ url_for('perfil') }}" class="btn-panel"
+            style="background: #4b30e6; text-decoration: none; display: inline-block; width: auto; padding: 12px 40px;">
             ← Volver al Perfil
         </a>
     </div>
 
 </div>
+
+<script>
+    const inputFecha = document.querySelector('input[name="fecha_nacimiento"]');
+    const inputTutor = document.querySelector('input[name="email_tutor"]');
+
+    inputFecha.addEventListener('change', function () {
+        const fechaNacimiento = new Date(this.value);
+        const hoy = new Date();
+        let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+
+        // Ajuste por si aún no ha cumplido años este año
+        const m = hoy.getMonth() - fechaNacimiento.getMonth();
+        if (m < 0 || (m === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
+            edad--;
+        }
+
+        if (edad < 18) {
+            inputTutor.required = true;
+            inputTutor.style.border = "2px solid #ff4d4d"; // Rojo para avisar
+            inputTutor.placeholder = "EMAIL TUTOR OBLIGATORIO (Menor)";
+        } else {
+            inputTutor.required = false;
+            inputTutor.style.border = "1px solid #ccc";
+            inputTutor.placeholder = "Email Tutor (Opcional)";
+        }
+    });
+</script>
 {% endblock %}

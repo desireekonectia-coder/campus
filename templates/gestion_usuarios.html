@@ -93,6 +93,50 @@
         </table>
     </div>
 
+    <div class="tabla-card">
+    <h3>Poner Nota 📝</h3>
+    <form action="{{ url_for('registrar_nota') }}" method="POST" class="formulario-admin">
+        <select name="id_user" required>
+            {% for u in lista_usuarios %}<option value="{{ u.id_user }}">{{ u.nombre }}</option>{% endfor %}
+        </select>
+        <select name="id_asig" required>
+            {% for a in lista_asignaturas %}<option value="{{ a.id_asig }}">{{ a.nombre_asig }}</option>{% endfor %}
+        </select>
+        <input type="number" name="calificacion" step="0.1" placeholder="Nota" min="0" max="10" required>
+        <button type="submit" class="btn-panel">Guardar Nota</button>
+    </form>
+</div>
+
+<div class="tabla-card">
+    <h3>Gestión de Notas Existentes 📝</h3>
+    <table class="tabla-estilizada">
+        <thead>
+            <tr>
+                <th>Alumno</th>
+                <th>Asignatura</th>
+                <th>Trimestre</th>
+                <th>Nota</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for n in lista_notas %}
+            <tr>
+                <td>{{ n.alumno }}</td>
+                <td>{{ n.nombre_asig }}</td>
+                <td>{{ n.trimestre }}</td>
+                <td><strong>{{ n.calificacion }}</strong></td>
+                <td>
+                    <a href="{{ url_for('eliminar_nota', id=n.id_nota) }}" 
+                       class="btn-borrar" 
+                       onclick="return confirm('¿Eliminar esta nota?')">🗑️ Borrar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
     <div style="text-align: center; margin-top: 10px;">
         <a href="{{ url_for('perfil') }}" class="btn-panel"
             style="background: #4b30e6; text-decoration: none; display: inline-block; width: auto; padding: 12px 40px;">
@@ -137,4 +181,37 @@
         <button type="submit" class="btn-panel">Guardar Asignación</button>
     </form>
 </div>
+
+<div class="tabla-card">
+    <h3>Registrar Falta de Asistencia 🚩</h3>
+    <form action="{{ url_for('registrar_falta') }}" method="POST" class="formulario-admin">
+        
+        <label>Alumno:</label>
+        <select name="id_user" required>
+            {% for u in lista_usuarios %}
+                {% if u.rol == 'alumno' %}
+                    <option value="{{ u.id_user }}">{{ u.nombre }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+
+        <label>Asignatura:</label>
+        <select name="id_asig" required>
+            {% for a in lista_asignaturas %}
+                <option value="{{ a.id_asig }}">{{ a.nombre_asig }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Fecha:</label>
+        <input type="date" name="fecha_falta" required class="input-field">
+
+        <label>Hora:</label>
+        <input type="time" name="hora_falta" required class="input-field">
+
+        <button type="submit" class="btn-panel" style="background: #ff4d4d; margin-top: 10px;">
+            Registrar Falta
+        </button>
+    </form>
+</div>
+
 {% endblock %}
