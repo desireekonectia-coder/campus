@@ -65,6 +65,14 @@ python -m venv .venv
 
 pip install -r requirements.txt
 
+si no se puede
+
+python -m pip install -r requirements.txt
+
+si tienes instaladas versiones recientes:
+
+py -m pip install -r requirements.txt
+
 
 ### 4. Configurar Base de Datos PostgreSQL
 
