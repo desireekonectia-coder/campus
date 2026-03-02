@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="background"></div>
+
+<div class="perfil-container">
+    <div class="user-card" style="max-width: 900px; margin: 0 auto;">
+        <h2 style="text-align: center;">📅 Mi Agenda: {{ mes_nombre }} {{ anio }}</h2>
+        
+        <div class="grid-calendario">
+            <div class="dia-header">Lun</div>
+            <div class="dia-header">Mar</div>
+            <div class="dia-header">Mié</div>
+            <div class="dia-header">Jue</div>
+            <div class="dia-header">Vie</div>
+            <div class="dia-header">Sáb</div>
+            <div class="dia-header">Dom</div>
+
+            {% for semana in calendario %}
+                {% for dia in semana %}
+                    {% set dia_semana_nombre = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'][loop.index0] %}
+                    
+                    <div class="celda-dia {% if dia == 0 %}vacio{% endif %}" 
+                         {% if dia != 0 %} onclick="verDetalle('{{ dia }}', '{{ dia_semana_nombre }}')" {% endif %}>
+                        
+                        {% if dia != 0 %}
+                            <span class="numero-dia">{{ dia }}</span>
+                            
+                            {# 1. Dibujar Clases fijas #}
+                            {% for h in horarios_alumno %}
+                                {% if h.dia_semana == dia_semana_nombre %}
+                                    <div class="punto-clase">📚 {{ h.nombre_asig }}</div>
+                                {% endif %}
+                            {% endfor %}
+
+                            {# 2. Dibujar Eventos/Exámenes #}
+                           {# Bucle de EVENTOS actualizado #}
+{% for ev in eventos %}
+    {# Usamos ev.dia_num que creamos en el servidor #}
+    {% if ev.dia_num == dia %}
+        <div class="punto-evento" style="background: #fff3cd; color: #856404; font-size: 9px; border-left: 3px solid #ffc107; padding: 2px; margin-top:2px;">
+            ⚠️ {{ ev.titulo }}
+        </div>
+    {% endif %}
+{% endfor %}
+                        {% endif %}
+                    </div>
+                {% endfor %} {# Cierre de for dia #}
+            {% endfor %} {# Cierre de for semana #}
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{{ url_for('perfil') }}" class="btn-panel">← Volver al Perfil</a>
+        </div>
+    </div>
+</div>
+
+<div id="modalDia" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal()">&times;</span>
+        <h3 id="modal-titulo"></h3>
+        <div id="modal-cuerpo"></div>
+    </div>
+</div>
+
+<div id="calendar-data" 
+     data-horarios='{{ horarios_alumno|tojson|safe }}' 
+     data-eventos='{{ eventos|tojson|safe }}' 
+     style="display:none;"></div>
+
+<script>
+let horarios = [];
+let eventos = [];
+try {
+    const dataNode = document.getElementById('calendar-data');
+    horarios = JSON.parse(dataNode.dataset.horarios);
+    eventos = JSON.parse(dataNode.dataset.eventos);
+} catch (e) { console.error("Error al cargar datos", e); }
+
+function verDetalle(dia, nombreDia) {
+    document.getElementById('modal-titulo').innerText = "Agenda del " + dia + " (" + nombreDia + ")";
+    let html = "";
+
+    // Filtrar clases
+    let misClases = horarios.filter(h => h.dia_semana === nombreDia);
+    if(misClases.length > 0) {
+        html += "<h4>📚 Clases:</h4><ul>";
+        misClases.forEach(h => html += `<li>${h.hora_inicio || ''} - ${h.nombre_asig}</li>`);
+        html += "</ul>";
+    }
+
+    // Filtrar eventos (ajuste de fecha para JS)
+    let misEvs = eventos.filter(ev => {
+        let f = new Date(ev.fecha);
+        return (f.getUTCDate()) == dia;
+    });
+
+    if(misEvs.length > 0) {
+        html += "<h4>⚠️ Eventos:</h4><ul>";
+        misEvs.forEach(ev => html += `<li><strong>${ev.nombre_asig}:</strong> ${ev.titulo}</li>`);
+        html += "</ul>";
+    }
+
+    if(html === "") html = "<p>No hay actividades para hoy.</p>";
+    document.getElementById('modal-cuerpo').innerHTML = html;
+    document.getElementById('modalDia').style.display = "block";
+}
+
+function cerrarModal() { document.getElementById('modalDia').style.display = "none"; }
+</script>
+
+<style>
+    .grid-calendario { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; background: #eee; padding: 10px; border-radius: 10px; }
+    .dia-header { background: #4b30e6; color: white; text-align: center; padding: 10px; font-weight: bold; }
+    .celda-dia { background: white; min-height: 100px; padding: 5px; border: 1px solid #ddd; cursor: pointer; }
+    .celda-dia:hover { background: #f0f7ff; }
+    .punto-clase { font-size: 10px; background: #eef1ff; color: #4b30e6; margin-top: 2px; padding: 2px; border-left: 3px solid #4b30e6; }
+    .vacio { background: #fafafa; cursor: default; }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+    .modal-content { background: white; margin: 15% auto; padding: 20px; border-radius: 10px; width: 40%; }
+    .close { float: right; font-size: 24px; cursor: pointer; }
+</style>
+{% endblock %}

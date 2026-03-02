@@ -137,6 +137,40 @@
     </table>
 </div>
 
+<div class="tabla-card">
+    <h3>Listado de Faltas y Justificaciones 🚩</h3>
+    <table class="tabla-estilizada">
+        <thead>
+            <tr>
+                <th>Alumno</th>
+                <th>Fecha y Hora</th>
+                <th>Estado</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in lista_faltas %}
+            <tr>
+                <td>{{ f.nombre_alumno }}</td>
+                <td>{{ f.fecha }} - {{ f.hora }}</td>
+                <td>
+                    {% if f.justificada %}
+                        <span style="color: green;">✅ Justificada</span>
+                    {% else %}
+                        <span style="color: red;">❌ Pendiente</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not f.justificada %}
+                        <a href="{{ url_for('justificar_falta', id=f.id_falta) }}" class="btn-panel" style="padding: 5px 10px; background: #28a745;">Justificar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
     <div style="text-align: center; margin-top: 10px;">
         <a href="{{ url_for('perfil') }}" class="btn-panel"
             style="background: #4b30e6; text-decoration: none; display: inline-block; width: auto; padding: 12px 40px;">

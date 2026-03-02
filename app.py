@@ -35,6 +35,58 @@ def admin_requerido(f):
         return f(*args, **kwargs)
     return decorated_function
 
+import calendar
+from datetime import datetime
+
+@app.route("/calendario")
+@login_requerido
+def ver_calendario():
+    id_user = session.get('id_user')
+    rol = session.get('rol')
+    ahora = datetime.now()
+    cal = calendar.monthcalendar(ahora.year, ahora.month)
+    meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    
+    conn = conectarCampus()
+    cursor = conn.cursor()
+
+    # 1. Obtener Horarios
+    cursor.execute("SELECT a.nombre_asig, h.dia_semana, h.hora_inicio, h.hora_fin FROM horarios h JOIN asignaturas a ON h.id_asig = a.id_asig WHERE h.id_user = %s", (id_user,))
+    horarios = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+
+    # CONVERTIR HORAS A TEXTO (Para evitar el error TypeError)
+    for h in horarios:
+        if h.get('hora_inicio') and hasattr(h['hora_inicio'], 'strftime'):
+            h['hora_inicio'] = h['hora_inicio'].strftime('%H:%M')
+        if h.get('hora_fin') and hasattr(h['hora_fin'], 'strftime'):
+            h['hora_fin'] = h['hora_fin'].strftime('%H:%M')
+
+    # 2. Obtener Eventos
+    if rol == 'profesor':
+        cursor.execute("SELECT e.titulo, e.fecha, a.nombre_asig FROM eventos e JOIN asignaturas a ON e.id_asig = a.id_asig WHERE e.id_profesor = %s", (id_user,))
+    else:
+        cursor.execute("SELECT e.titulo, e.fecha, a.nombre_asig FROM eventos e JOIN asignaturas a ON e.id_asig = a.id_asig WHERE e.id_asig IN (SELECT id_asig FROM horarios WHERE id_user = %s)", (id_user,))
+    
+    eventos = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+
+    # CONVERTIR FECHAS DE EVENTOS A TEXTO (Importante para JSON)
+    for ev in eventos:
+        if ev.get('fecha') and hasattr(ev['fecha'], 'strftime'):
+            ev['fecha_str'] = ev['fecha'].strftime('%Y-%m-%d')
+            # Extraemos el día para usarlo en el HTML fácilmente
+            ev['dia_num'] = ev['fecha'].day
+    
+    cursor.close()
+    conn.close()
+
+    return render_template("calendario.html", 
+                           calendario=cal, 
+                           mes_nombre=meses[ahora.month-1], 
+                           mes_num=ahora.month, 
+                           anio=ahora.year, 
+                           horarios_alumno=horarios, 
+                           eventos=eventos)
+
 @app.route("/", methods=["GET", "POST"])
 def login_registro():
     if 'usuario' in session:
@@ -81,48 +133,41 @@ def perfil():
     conn = conectarCampus()
     cursor = conn.cursor()
 
-    # 1. Consultar Horarios
+    # 1. Horarios
     cursor.execute("""
-        SELECT a.nombre_asig, h.dia_semana, h.hora_inicio, h.hora_fin 
+        SELECT a.id_asig, a.nombre_asig, h.dia_semana, h.hora_inicio, h.hora_fin 
         FROM horarios h JOIN asignaturas a ON h.id_asig = a.id_asig 
         WHERE h.id_user = %s ORDER BY h.dia_semana, h.hora_inicio
     """, (id_usuario,))
     mis_horarios = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
 
-    # 2. Consultar Faltas
+    # 2. Faltas (Corregido)
     cursor.execute("""
-        SELECT a.nombre_asig, f.id_falta FROM faltas f 
-        JOIN asignaturas a ON f.id_asig = a.id_asig WHERE f.id_user = %s
+        SELECT f.fecha, a.nombre_asig, f.justificada 
+        FROM faltas f JOIN asignaturas a ON f.id_asig = a.id_asig 
+        WHERE f.id_user = %s
     """, (id_usuario,))
     mis_faltas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
 
-    # 3. CONSULTAR NOTAS (Lógica para Alumno y Padre)
+    # 3. Notas
     if rol == 'padre':
-        # El padre ve las notas de los alumnos que tengan su correo como 'email_tutor'
         cursor.execute("""
             SELECT u.nombre as alumno, a.nombre_asig, n.calificacion, n.trimestre 
             FROM notas n JOIN users u ON n.id_user = u.id_user
             JOIN asignaturas a ON n.id_asig = a.id_asig WHERE u.email_tutor = %s
         """, (email,))
     else:
-        # El alumno ve sus propias notas
         cursor.execute("""
             SELECT a.nombre_asig, n.calificacion, n.trimestre 
             FROM notas n JOIN asignaturas a ON n.id_asig = a.id_asig WHERE n.id_user = %s
         """, (id_usuario,))
-    
     mis_notas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
 
     cursor.close()
     conn.close()
 
-    return render_template("user.html", 
-                           usuario=session.get('usuario'),
-                           email=session.get('email'),
-                           rol=rol, 
-                           horarios=mis_horarios, 
-                           faltas=mis_faltas, 
-                           notas=mis_notas)
+    return render_template("user.html", usuario=session.get('usuario'), email=email, 
+                           rol=rol, horarios=mis_horarios, faltas=mis_faltas, notas=mis_notas)
 
 @app.route("/registro", methods=["GET", "POST"])
 @login_requerido
@@ -201,6 +246,13 @@ def gestion_usuarios():
         JOIN asignaturas a ON n.id_asig = a.id_asig
     """)
     notas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+
+    # Consulta para las FALTAS
+    cursor.execute("""
+        SELECT f.id_falta, u.nombre as nombre_alumno, a.nombre_asig, f.fecha, f.hora, f.justificada 
+        FROM faltas f JOIN users u ON f.id_user = u.id_user JOIN asignaturas a ON f.id_asig = a.id_asig
+    """)
+    faltas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
     
     cursor.close()
     conn.close()
@@ -208,7 +260,8 @@ def gestion_usuarios():
                            lista_usuarios=usuarios, 
                            lista_asignaturas=asignaturas, 
                            lista_horarios=horarios,
-                           lista_notas=notas)
+                           lista_notas=notas,
+                            lista_faltas=faltas)
 
 @app.route('/asignar_horario', methods=['POST'])
 @login_requerido
@@ -284,6 +337,20 @@ def registrar_falta():
     conn.close()
     return redirect(url_for('gestion_usuarios'))
 
+@app.route('/justificar_falta/<int:id>')
+@login_requerido
+@admin_requerido
+def justificar_falta(id):
+    conn = conectarCampus()
+    cursor = conn.cursor()
+    # Cambiamos el estado de la falta a True (justificada)
+    cursor.execute("UPDATE faltas SET justificada = True WHERE id_falta = %s", (id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('gestion_usuarios'))
+
+    
 @app.route('/eliminar_usuario/<int:id>')
 @login_requerido
 @admin_requerido
@@ -335,6 +402,24 @@ def eliminar_horario(id):
     cursor.close()
     conn.close()
     return redirect(url_for('gestion_usuarios'))
+
+@app.route('/crear_evento', methods=['POST'])
+@login_requerido
+def crear_evento():
+    if session.get('rol') != 'profesor': return "No autorizado", 403
+    id_asig = request.form.get('id_asig')
+    titulo = request.form.get('titulo')
+    fecha = request.form.get('fecha')
+    id_profesor = session.get('id_user')
+
+    conn = conectarCampus()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO eventos (id_asig, titulo, fecha, id_profesor) VALUES (%s, %s, %s, %s)",
+                   (id_asig, titulo, fecha, id_profesor))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('perfil'))
 
 @app.route("/logout")
 def logout():
