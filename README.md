@@ -1,5 +1,13 @@
 # Campus - Proyecto de Formación
 
+# Enlace a github
+
+https://github.com/desireekonectia-coder/campus
+
+# Enlace a railway
+
+secure-heart-production.up.railway.app
+
 ## 📚 Descripción
 
 **Campus**  es una plataforma educativa integral que permite la gestión de la vida académica en tiempo real. Este proyecto demuestra el desarrollo de una aplicación web completa, desde la autenticación segura hasta la visualización dinámica de datos escolares para alumnos, padres y profesores.
@@ -64,6 +72,14 @@ python -m venv .venv
 ### 3. Instalar Dependencias
 
 pip install -r requirements.txt
+
+si no se puede
+
+python -m pip install -r requirements.txt
+
+si tienes instaladas versiones recientes:
+
+py -m pip install -r requirements.txt
 
 
 ### 4. Configurar Base de Datos PostgreSQL
