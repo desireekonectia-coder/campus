@@ -13,7 +13,7 @@ Este proyecto está desplegado en Railway y gestiona un sistema académico compl
 ## 🧪 Datos de Acceso para el Profesor (Admin)
 Para corregir y probar las funciones de administrador:
 1. Regístrese o use un usuario existente llamado: `profe_corrector`
-2. **Contraseña:** (la que haya definido en su DB)
+2. **Contraseña:** (admin1234)
 3. El sistema le otorgará permisos de **Administrador** automáticamente.
 
 ## ⚙️ Configuración del Servidor
