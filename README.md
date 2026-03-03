@@ -1,5 +1,13 @@
 # Campus - Proyecto de Formación
 
+# Enlace a github
+
+https://github.com/desireekonectia-coder/campus
+
+# Enlace a railway
+
+secure-heart-production.up.railway.app
+
 ## 📚 Descripción
 
 **Campus**  es una plataforma educativa integral que permite la gestión de la vida académica en tiempo real. Este proyecto demuestra el desarrollo de una aplicación web completa, desde la autenticación segura hasta la visualización dinámica de datos escolares para alumnos, padres y profesores.
