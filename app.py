@@ -209,59 +209,97 @@ def registrar_usuario():
 
 @app.route('/gestion_usuarios')
 @login_requerido
-@admin_requerido
 def gestion_usuarios():
+    id_user = session.get('id_user')
+    rol = session.get('rol')
+    
+    if rol not in ['administrador', 'profesor']:
+        return "Acceso denegado", 403
+
     conn = conectarCampus()
     cursor = conn.cursor()
-    
-    # 1. Usuarios
-    cursor.execute("SELECT id_user, nombre, mail, rol FROM users")
-    usuarios = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
-    
-    # 2. Asignaturas
-    cursor.execute("SELECT id_asig, nombre_asig FROM asignaturas")
-    asignaturas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
-    
-    # 3. Horarios 
-    cursor.execute("""
-        SELECT h.id_horario, u.nombre as nombre_alumno, a.nombre_asig, h.dia_semana, h.hora_inicio, h.hora_fin 
-        FROM horarios h JOIN asignaturas a ON h.id_asig = a.id_asig
-        JOIN users u ON h.id_user = u.id_user ORDER BY h.dia_semana, h.hora_inicio
-    """)
-    horarios = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
 
-    # 4. NOTAS (Para el Administrador)
-    cursor.execute("""
-        SELECT n.id_nota, u.nombre as alumno, a.nombre_asig, n.calificacion, n.trimestre 
-        FROM notas n JOIN users u ON n.id_user = u.id_user
-        JOIN asignaturas a ON n.id_asig = a.id_asig
-    """)
-    notas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+    # 1. Lista de usuarios (para tablas y desplegables)
+    cursor.execute("SELECT id_user, nombre, mail, rol FROM users ORDER BY nombre ASC")
+    lista_usuarios = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
 
-    # 2. NUEVO: Ver todas las notas para poder gestionarlas
-    cursor.execute("""
-        SELECT n.id_nota, u.nombre as alumno, a.nombre_asig, n.calificacion, n.trimestre 
+    # 2. Lista de asignaturas (Filtrada si es profesor)
+    if rol == 'profesor':
+        cursor.execute("""
+            SELECT DISTINCT a.id_asig, a.nombre_asig 
+            FROM asignaturas a
+            JOIN horarios h ON a.id_asig = h.id_asig
+            WHERE h.id_user = %s
+        """, (id_user,))
+    else:
+        cursor.execute("SELECT id_asig, nombre_asig FROM asignaturas ORDER BY nombre_asig ASC")
+    lista_asignaturas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+
+    # 3. Consulta de Notas (Importante: nombre AS alumno)
+    query_notas = """
+        SELECT n.id_nota, u.nombre AS nombre, a.nombre_asig, n.calificacion, n.trimestre 
         FROM notas n
         JOIN users u ON n.id_user = u.id_user
         JOIN asignaturas a ON n.id_asig = a.id_asig
-    """)
-    notas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+    """
+    if rol == 'profesor':
+        # El profesor solo ve notas de alumnos en sus asignaturas
+        query_notas = """
+            SELECT n.id_nota, u.nombre AS nombre, a.nombre_asig, n.calificacion, n.trimestre 
+            FROM notas n
+            JOIN users u ON n.id_user = u.id_user
+            JOIN asignaturas a ON n.id_asig = a.id_asig
+            WHERE n.id_asig IN (SELECT id_asig FROM horarios WHERE id_user = %s)
+        """
+        cursor.execute(query_notas, (id_user,))
+    else:
+        # El administrador ve todo
+        query_notas = """
+            SELECT n.id_nota, u.nombre AS nombre, a.nombre_asig, n.calificacion, n.trimestre 
+            FROM notas n
+            JOIN users u ON n.id_user = u.id_user
+            JOIN asignaturas a ON n.id_asig = a.id_asig
+        """
+        cursor.execute(query_notas)
+        
+    notas_registradas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
 
-    # Consulta para las FALTAS
-    cursor.execute("""
-        SELECT f.id_falta, u.nombre as nombre_alumno, a.nombre_asig, f.fecha, f.hora, f.justificada 
-        FROM faltas f JOIN users u ON f.id_user = u.id_user JOIN asignaturas a ON f.id_asig = a.id_asig
-    """)
-    faltas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
-    
+    # 4. Consulta de Horarios (Importante: u.nombre AS nombre_alumno)
+    query_horarios = """
+        SELECT h.id_horario, u.nombre AS nombre_alumno, a.nombre_asig, h.dia_semana, h.hora_inicio, h.hora_fin 
+        FROM horarios h
+        JOIN users u ON h.id_user = u.id_user
+        JOIN asignaturas a ON h.id_asig = a.id_asig
+    """
+    if rol == 'profesor':
+        query_horarios += " WHERE h.id_asig IN (SELECT id_asig FROM horarios WHERE id_user = %s)"
+        cursor.execute(query_horarios, (id_user,))
+    else:
+        cursor.execute(query_horarios)
+    lista_horarios = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+
+   # 5. Consulta de Faltas (CORREGIDO: añadimos f.justificada)
+    query_faltas = """
+        SELECT f.id_falta, u.nombre AS alumno, a.nombre_asig, f.fecha, f.justificada 
+        FROM faltas f
+        JOIN users u ON f.id_user = u.id_user
+        JOIN asignaturas a ON f.id_asig = a.id_asig
+    """
+    if rol == 'profesor':
+        query_faltas += " WHERE f.id_asig IN (SELECT id_asig FROM horarios WHERE id_user = %s)"
+        cursor.execute(query_faltas, (id_user,))
+    else:
+        cursor.execute(query_faltas)
+    lista_faltas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
     cursor.close()
     conn.close()
+
     return render_template('gestion_usuarios.html', 
-                           lista_usuarios=usuarios, 
-                           lista_asignaturas=asignaturas, 
-                           lista_horarios=horarios,
-                           lista_notas=notas,
-                            lista_faltas=faltas)
+                           lista_usuarios=lista_usuarios, 
+                           lista_asignaturas=lista_asignaturas, 
+                           lista_horarios=lista_horarios,
+                           notas_registradas=notas_registradas,
+                           lista_faltas=lista_faltas)
 
 @app.route('/asignar_horario', methods=['POST'])
 @login_requerido
@@ -343,13 +381,12 @@ def registrar_falta():
 def justificar_falta(id):
     conn = conectarCampus()
     cursor = conn.cursor()
-    # Cambiamos el estado de la falta a True (justificada)
+    # Aquí es donde ocurre la magia: cambiamos 'justificada' a True
     cursor.execute("UPDATE faltas SET justificada = True WHERE id_falta = %s", (id,))
     conn.commit()
     cursor.close()
     conn.close()
     return redirect(url_for('gestion_usuarios'))
-
     
 @app.route('/eliminar_usuario/<int:id>')
 @login_requerido
