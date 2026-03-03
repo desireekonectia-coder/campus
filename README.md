@@ -182,6 +182,14 @@ Verifica que has activado el entorno virtual y has ejecutado `pip install -r req
 
 ---
 
+# Nuevas Funcionalidades 
+1. Borrado de Faltas (Solo Administrador)
+El administrador ahora tiene un "borrador" para corregir errores humanos.
+•	Botón 🗑️: Disponible en la tabla de Gestión de Asistencia.
+•	Confirmación: El sistema pregunta antes de borrar para evitar clics accidentales.
+•	Ejemplo: Si pones una falta a "Ruben" por error, ahora puedes eliminarla completamente en lugar de solo justificarla.
+
+
 ## 📝 Licencia
 
 Este proyecto se encuentra bajo la licencia especificada en [LICENSE.md](LICENSE.md).

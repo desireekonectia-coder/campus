@@ -463,6 +463,23 @@ def logout():
     session.clear()
     return redirect(url_for('login_registro'))
 
+@app.route('/eliminar_falta/<int:id>')
+@login_requerido
+@admin_requerido
+def eliminar_falta(id):
+    conn = conectarCampus()
+    cursor = conn.cursor()
+    
+    # Borramos la falta usando su ID único
+    cursor.execute("DELETE FROM faltas WHERE id_falta = %s", (id,))
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    # Volvemos a la gestión de usuarios para ver que ha desaparecido
+    return redirect(url_for('gestion_usuarios'))
+
 if __name__ == "__main__":
     app.run(debug=True)
 

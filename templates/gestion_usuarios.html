@@ -172,14 +172,21 @@
                             <span style="color: red; font-weight: bold;">❌ Pendiente</span>
                         {% endif %}
                     </td>
-                    <td>
+                    <td style="display: flex; gap: 10px; align-items: center;">
                         {% if not f.justificada %}
                             <a href="{{ url_for('justificar_falta', id=f.id_falta) }}" class="btn-panel" style="padding: 5px 10px; background: #28a745; font-size: 12px; text-decoration: none;">
                                 Justificar
                             </a>
                         {% else %}
-                            <span style="color: gray;">Completado</span>
+                            <span style="color: gray; font-size: 12px;">Completado</span>
                         {% endif %}
+
+                        <a href="{{ url_for('eliminar_falta', id=f.id_falta) }}" 
+                           class="btn-borrar" 
+                           style="text-decoration: none;"
+                           onclick="return confirm('¿Eliminar esta falta?')">
+                           🗑️
+                        </a>
                     </td>
                 </tr>
                 {% else %}
@@ -208,10 +215,11 @@
         </form>
     </div>
 
-    <div style="text-align: center; margin-top: 20px;">
+    <div style="text-align: center; margin-top: 20px; padding-bottom: 40px;">
         <a href="{{ url_for('perfil') }}" class="btn-panel" style="background: #4b30e6; text-decoration: none; padding: 12px 40px;">
             ← Volver al Perfil
         </a>
     </div>
+
 </div>
 {% endblock %}
