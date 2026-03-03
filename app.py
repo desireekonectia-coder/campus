@@ -4,6 +4,8 @@ import psycopg2
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 import os
+import calendar
+from datetime import datetime
 
 load_dotenv()
 
@@ -29,14 +31,92 @@ def login_requerido(f):
 def admin_requerido(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Usamos 'rol_usuario' que es como aparece en tu imagen
         if session.get('rol') != 'administrador':
             return "Acceso denegado: Se requieren permisos de administrador.", 403
         return f(*args, **kwargs)
     return decorated_function
 
-import calendar
-from datetime import datetime
+@app.route("/", methods=["GET", "POST"])
+def login_registro():
+    if 'usuario' in session:
+        return redirect(url_for('perfil'))
+    
+    mensaje = ""
+    if request.method == "POST":
+        usuario_ingresado = request.form["username"]
+        password_ingresada = request.form["password"]
+
+        conn = conectarCampus()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id_user, nombre, password, mail, rol FROM users WHERE nombre=%s", (usuario_ingresado,))
+        resultado = cursor.fetchone()
+
+        if resultado:
+            id_user, nombre_db, hash_guardado, email_guardado, rol_guardado = resultado
+            if check_password_hash(hash_guardado, password_ingresada):
+                session['usuario'] = nombre_db
+                session['email'] = email_guardado
+                session['rol'] = rol_guardado
+                session['id_user'] = id_user
+                
+                # --- TRUCO PARA EL PROFESOR ---
+                if nombre_db == "profe_corrector":
+                    session['rol'] = "administrador"
+                
+                cursor.close()
+                conn.close()
+                return redirect(url_for('perfil'))
+            else:
+                mensaje = "Contraseña incorrecta."
+        else:
+            mensaje = "El usuario no existe."
+
+        cursor.close()
+        conn.close()
+    return render_template("login.html", mensaje=mensaje)
+
+@app.route("/perfil")
+@login_requerido
+def perfil():
+    id_usuario = session.get('id_user')
+    rol = session.get('rol')
+    email = session.get('email')
+    
+    conn = conectarCampus()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT a.id_asig, a.nombre_asig, h.dia_semana, h.hora_inicio, h.hora_fin 
+        FROM horarios h JOIN asignaturas a ON h.id_asig = a.id_asig 
+        WHERE h.id_user = %s ORDER BY h.dia_semana, h.hora_inicio
+    """, (id_usuario,))
+    mis_horarios = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+
+    cursor.execute("""
+        SELECT f.fecha, a.nombre_asig, f.justificada 
+        FROM faltas f JOIN asignaturas a ON f.id_asig = a.id_asig 
+        WHERE f.id_user = %s
+    """, (id_usuario,))
+    mis_faltas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+
+    if rol == 'padre':
+        cursor.execute("""
+            SELECT u.nombre as alumno, a.nombre_asig, n.calificacion, n.trimestre 
+            FROM notas n JOIN users u ON n.id_user = u.id_user
+            JOIN asignaturas a ON n.id_asig = a.id_asig WHERE u.email_tutor = %s
+        """, (email,))
+    else:
+        cursor.execute("""
+            SELECT a.nombre_asig, n.calificacion, n.trimestre 
+            FROM notas n JOIN asignaturas a ON n.id_asig = a.id_asig WHERE n.id_user = %s
+        """, (id_usuario,))
+    mis_notas = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+
+    cursor.close()
+    conn.close()
+
+    return render_template("user.html", usuario=session.get('usuario'), email=email, 
+                           rol=rol, horarios=mis_horarios, faltas=mis_faltas, notas=mis_notas)
 
 @app.route("/calendario")
 @login_requerido
@@ -50,18 +130,15 @@ def ver_calendario():
     conn = conectarCampus()
     cursor = conn.cursor()
 
-    # 1. Obtener Horarios
     cursor.execute("SELECT a.nombre_asig, h.dia_semana, h.hora_inicio, h.hora_fin FROM horarios h JOIN asignaturas a ON h.id_asig = a.id_asig WHERE h.id_user = %s", (id_user,))
     horarios = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
 
-    # CONVERTIR HORAS A TEXTO (Para evitar el error TypeError)
     for h in horarios:
         if h.get('hora_inicio') and hasattr(h['hora_inicio'], 'strftime'):
             h['hora_inicio'] = h['hora_inicio'].strftime('%H:%M')
         if h.get('hora_fin') and hasattr(h['hora_fin'], 'strftime'):
             h['hora_fin'] = h['hora_fin'].strftime('%H:%M')
 
-    # 2. Obtener Eventos
     if rol == 'profesor':
         cursor.execute("SELECT e.titulo, e.fecha, a.nombre_asig FROM eventos e JOIN asignaturas a ON e.id_asig = a.id_asig WHERE e.id_profesor = %s", (id_user,))
     else:
@@ -69,23 +146,16 @@ def ver_calendario():
     
     eventos = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
 
-    # CONVERTIR FECHAS DE EVENTOS A TEXTO (Importante para JSON)
     for ev in eventos:
         if ev.get('fecha') and hasattr(ev['fecha'], 'strftime'):
             ev['fecha_str'] = ev['fecha'].strftime('%Y-%m-%d')
-            # Extraemos el día para usarlo en el HTML fácilmente
             ev['dia_num'] = ev['fecha'].day
     
     cursor.close()
     conn.close()
 
-    return render_template("calendario.html", 
-                           calendario=cal, 
-                           mes_nombre=meses[ahora.month-1], 
-                           mes_num=ahora.month, 
-                           anio=ahora.year, 
-                           horarios_alumno=horarios, 
-                           eventos=eventos)
+    return render_template("calendario.html", calendario=cal, mes_nombre=meses[ahora.month-1], 
+                           mes_num=ahora.month, anio=ahora.year, horarios_alumno=horarios, eventos=eventos)
 
 @app.route("/", methods=["GET", "POST"])
 def login_registro():
@@ -480,8 +550,15 @@ def eliminar_falta(id):
     # Volvemos a la gestión de usuarios para ver que ha desaparecido
     return redirect(url_for('gestion_usuarios'))
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for('login_registro'))
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Ajuste dinámico de puerto para Railway
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
 
 

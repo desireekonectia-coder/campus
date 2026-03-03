@@ -8,6 +8,18 @@ https://github.com/desireekonectia-coder/campus
 
 secure-heart-production.up.railway.app
 
+Este proyecto está desplegado en Railway y gestiona un sistema académico completo.
+
+## 🧪 Datos de Acceso para el Profesor (Admin)
+Para corregir y probar las funciones de administrador:
+1. Regístrese o use un usuario existente llamado: `profe_corrector`
+2. **Contraseña:** (la que haya definido en su DB)
+3. El sistema le otorgará permisos de **Administrador** automáticamente.
+
+## ⚙️ Configuración del Servidor
+- **Python:** 3.12 (definido en runtime.txt)
+- **Servidor:** Gunicorn (definido en Procfile)
+
 ## 📚 Descripción
 
 **Campus**  es una plataforma educativa integral que permite la gestión de la vida académica en tiempo real. Este proyecto demuestra el desarrollo de una aplicación web completa, desde la autenticación segura hasta la visualización dinámica de datos escolares para alumnos, padres y profesores.
