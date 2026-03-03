@@ -62,11 +62,7 @@ def login_registro():
                 session['email'] = email_guardado
                 session['rol'] = rol_guardado
                 session['id_user'] = id_user
-                
-                # --- TRUCO PARA EL PROFESOR ---
-                if nombre_db == "profe_corrector":
-                    session['rol'] = "administrador"
-                
+                 
                 cursor.close()
                 conn.close()
                 return redirect(url_for('perfil'))
