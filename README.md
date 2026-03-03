@@ -113,7 +113,7 @@ CREATE TABLE users (id_user SERIAL PRIMARY KEY, nombre VARCHAR(100) NOT NULL, em
 
 CREATE TABLE asignaturas (id_asig SERIAL PRIMARY KEY, nombre_asig TEXT NOT NULL);
 
-CREATE TABLE horarios (id_horario SERIAL PRIMARY KEY, id_asig INTEGER REFERENCES asignaturas(id_asig) ON DELETE CASCADE, dia_semanaTEXT NOT NULL, hora_inicio TIME NOT NULL, hora_fin TIME NOT NULL);
+CREATE TABLE horarios (id_horario SERIAL PRIMARY KEY, id_asig INTEGER REFERENCES asignaturas(id_asig) ON DELETE CASCADE, dia_semana TEXT NOT NULL, hora_inicio TIME NOT NULL, hora_fin TIME NOT NULL);
 
 CREATE TABLE faltas (id_falta SERIAL PRIMARY KEY, id_user INTEGER REFERENCES users(id_user) ON DELETE CASCADE, id_asig INTEGER REFERENCES asignaturas(id_asig) ON DELETE CASCADE, fecha DATE DEFAULT CURRENT_DATE, justificada BOOLEAN DEFAULT FALSE);
 
